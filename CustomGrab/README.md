@@ -2,6 +2,21 @@
 
 This package is intended to allow developers to use grabber functionality with Oculus-oriented projects without relying on the __Oculus Implementation__'s _OVRGrabber_ and _OVRGrabbable_ components.
 
+## Table of Contents
+
+The following details are mentioned here:
+1. What the Package Comes With
+2. CustomHand Prefab
+    * Public Variables for CustomHand
+    * CustomHand Behavior
+3. CustomGrabbable.cs Script
+    * Colliders are Important
+    * Snap To Requirements
+
+---
+
+## What the Package Comes With
+
 This package comes with the following (The __bolded__ ones require your upmost attention):
 * Prefabs:
     * __CustomHand__
@@ -16,8 +31,12 @@ This package comes with the following (The __bolded__ ones require your upmost a
     * X-Axis
     * Y-Axis
     * Z-Axis
+* SampleScenes
+    * TestGrabberScene.unity
 
-## CustomHand prefab
+---
+
+## CustomHand Prefab
 
 The __CustomHand__ prefab requires that you have an _OVRPlayerController_ present in the scene. In particular, the _OVRPlayerController_ must be structure like so in the hierarchy:
 
@@ -69,11 +88,18 @@ By default, the grab functionality tied to the _Hand Trigger_ button of the Ocul
 2. Else, if the __CustomHand__ is holding any object, the _GrabEnd()_ function is initialized. 
 
 ---
-## CustomGrabbable.cs
+
+## CustomGrabbable.cs Script
 
 When you want an object to be grabbable in your scene, you must attach the __customGrabbable.cs__ script as a component of the object. 
 
-The __CustomGrabbable.cs__ script usually can be left alone when being added to a grabbable object. When this component is attached, the __CustomHand__ prefab (or any hands that have the __CustomGrabbable.cs__ script attached) will take care of any physics and collision detection. This includes letting go of objects as well.
+The __CustomGrabbable.cs__ script usually can be left alone when being added to a grabbable object, as long as the grabbable object as a Collider attached to it. When this component is attached, the __CustomHand__ prefab (or any hands that have the __CustomGrabbable.cs__ script attached) will take care of any physics and collision detection. This includes letting go of objects as well.
+
+### Colliders are Important
+
+Colliders on your grabbable object determine where your grab detection will be located at. This is hugely important, especially for when you have grabbable objects that have multiple handles or places that you wish for the object to be grabbed at, 
+
+Please ensure that you set up your colliders properly to reflect where on your grabbable object you wish for the hand to detect the grabbable object.
 
 ### Snap To Requirements
 
@@ -88,7 +114,5 @@ For example, if you have a weapon in your scene that is set up like the followin
     * __Handle__
 
 Inside the __PlayerWeapon__ object's _CustomGrabbable.cs_ variables, you can reference the GameObject __Handle__ as one of the snap points. When a _CustomGrabber.cs_ object finds the __PlayerWeapon__ object, then grabbing physics will automatically orient the object in the grabber with reference to __Handle__'s position and orientation.
-
-
 
 
