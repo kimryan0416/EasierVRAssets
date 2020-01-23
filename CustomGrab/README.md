@@ -97,13 +97,13 @@ The __CustomGrabbable.cs__ script usually can be left alone when being added to 
 
 ### Colliders are Important
 
-Colliders on your grabbable object determine where your grab detection will be located at. This is hugely important, especially for when you have grabbable objects that have multiple handles or places that you wish for the object to be grabbed at, 
+Colliders on your grabbable object determine where your grab detection will be located at. This is hugely important, especially for when you have grabbable objects that have multiple handles or places that you wish for the object to be grabbed at.
 
 Please ensure that you set up your colliders properly to reflect where on your grabbable object you wish for the hand to detect the grabbable object.
 
 ### Snap To Requirements
 
-If you wish to have the grabbable object snap to a __customGrabbable.cs__ object in a particular orientation and position, then your grabbable object requires _Transform_ references that act as snap points. These snap points can be children of your grabbable object, but they are referenced via the __SnapTransforms__ public List within the __customGrabbable.cs__ script.
+If you wish to have the grabbable object snap to a __customGrabber.cs__ object in a particular orientation and position, then your grabbable object requires _Transform_ references that act as snap points. These snap points can be children of your grabbable object, but they are referenced via the __SnapTransforms__ public List within the __customGrabbable.cs__ script.
 
 When a __CustomHand__ (or any hand that contains the _CustomGrabber.cs_ script) has their _ShouldSnap_ boolean active, then any objects with the _CustomGrabbable.cs_ script that is closest to the hand will snap to the hand with respect to the orientation and position of the closest Transform object referenced inside the _CustomGrabber.cs_'s __SnapTransforms__ List.
 
