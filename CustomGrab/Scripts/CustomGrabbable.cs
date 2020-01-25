@@ -91,7 +91,7 @@ public class CustomGrabbable : MonoBehaviour
         return toReturn;
     }
     public OVRInput.Controller GetGrabber() {
-        return grabbers[0].GetController();
+        return (grabbers.Count > 0) ? grabbers[0].GetController() : OVRInput.Controller.None;
     }
     public bool CanBeGrabbed() {
         return numGrabbersAllowed - grabbers.Count > 0;
