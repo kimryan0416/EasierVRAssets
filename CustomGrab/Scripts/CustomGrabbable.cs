@@ -12,6 +12,15 @@ public class CustomGrabbable : MonoBehaviour
     private Rigidbody m_RigidBody;
     #endregion
 
+    #region Public Variables
+    [SerializeField]
+    private float m_grabSpeed = 30f;
+    public float grabSpeed {
+        get {   return m_grabSpeed;     }
+        set {   m_grabSpeed = value;    }
+    }
+    #endregion
+
     #region Private Variables
     private Dictionary<Transform, bool> snapTransformsTaken = new Dictionary<Transform, bool>();
     private List<CustomGrabber> grabbers = new List<CustomGrabber>();
@@ -61,13 +70,16 @@ public class CustomGrabbable : MonoBehaviour
     }
     public void SnapToTransform() {
         Transform snapReference = heldBy[grabbers[0]];
-        if (snapReference == null) {
+        Quaternion rotationReference;
+        if (snapReference == null) {    
             snapReference = this.transform;
-            transform.rotation = grabbers[0].grabVol.transform.rotation * Quaternion.Euler(45,0,0);
+            rotationReference = grabbers[0].grabVol.transform.rotation * Quaternion.Euler(45,0,0); 
         } else {
-            transform.rotation = (grabbers[0].grabVol.transform.rotation * Quaternion.Inverse(snapReference.localRotation)) * Quaternion.Euler(45,0,0);
+            rotationReference = (grabbers[0].grabVol.transform.rotation * Quaternion.Inverse(snapReference.localRotation)) * Quaternion.Euler(45,0,0);
         }
-        transform.position = grabbers[0].grabVol.transform.position + (transform.position - snapReference.position);
+
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, rotationReference, m_grabSpeed*Time.deltaTime * 10f);
+        transform.position = Vector3.Lerp(transform.position, grabbers[0].grabVol.transform.position + (transform.position - snapReference.position), m_grabSpeed*Time.deltaTime);
     }
     public void AddGrabber(CustomGrabber cg, Transform to) {
         grabbers.Add(cg);

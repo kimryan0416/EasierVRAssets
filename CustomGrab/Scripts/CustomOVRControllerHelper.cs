@@ -20,7 +20,7 @@ using System.Collections;
 /// <summary>
 /// Simple helper script that conditionally enables rendering of a controller if it is connected.
 /// </summary>
-public class OVRControllerHelper : MonoBehaviour
+public class CustomOVRControllerHelper : MonoBehaviour
 {
 	/// <summary>
 	/// The root GameObject that represents the GearVr Controller model.

@@ -9,7 +9,8 @@ public class CustomGrabber : MonoBehaviour
     public Transform ControllerAnchor;
     public Transform m_gripTrans;
     public CustomGrabber_GrabVolume grabVol;
-    public OVRControllerHelper m_OVRControllerHelper;
+    public CustomOVRControllerHelper m_OVRControllerHelper;
+    public CustomPointer m_CustomPointer;
     #endregion
 
     #region Public Variables
@@ -26,10 +27,12 @@ public class CustomGrabber : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         if (m_gripTrans == null) m_gripTrans = ControllerAnchor;
         if (debugToggle && m_gripTrans != ControllerAnchor) {
             m_gripTrans.gameObject.SetActive(true);
         }
+        if (m_CustomPointer != null) {  m_CustomPointer.Activate(); }
         m_OVRControllerHelper.m_controller = m_controller;
         StartCoroutine(CheckGrip());
     }
@@ -60,6 +63,17 @@ public class CustomGrabber : MonoBehaviour
                     GrabEnd();
                 }
             }
+
+            if (m_grabbedObject != null) {
+                m_CustomPointer.LineOff();
+            }
+            else if (m_CustomPointer != null) {
+                if (OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, m_controller) > 0.1f) {
+                    m_CustomPointer.LineOn();
+                } else {
+                    m_CustomPointer.LineOff();
+                }
+            }
             yield return null;
         }
     }
@@ -85,11 +99,13 @@ public class CustomGrabber : MonoBehaviour
     }
 
     private void GrabEnd() {        
+        // Imported from Oculus Implementations
         OVRPose localPose = new OVRPose { position = OVRInput.GetLocalControllerPosition(m_controller), orientation = OVRInput.GetLocalControllerRotation(m_controller) };
 
 		OVRPose trackingSpace = transform.ToOVRPose() * localPose.Inverse();
 		Vector3 linearVelocity = trackingSpace.orientation * OVRInput.GetLocalControllerVelocity(m_controller);
 		Vector3 angularVelocity = trackingSpace.orientation * OVRInput.GetLocalControllerAngularVelocity(m_controller);
+        angularVelocity *= -1;
         
         m_grabbedObject.GrabEnd(this, linearVelocity, angularVelocity);
         m_grabbedObject = null;
