@@ -99,7 +99,9 @@ By default, the grab functionality tied to the _Hand Trigger_ button of the Ocul
     * If there is something the hand is already grabbing, the loop is ended early.
     * The *CustomGrabber_GrabVolume.cs* script will detect any colliders within range that has the _CustomGrabbable.cs_ script attached.
     * The closest collider will be searched for - if the closest is not _null_, then it will initialize the __GrabBegin()__ function within the closest _CustomGrabbable.cs_ object
-2. Else, if the __CustomHand__ is holding any object, the _GrabEnd()_ function is initialized. 
+2. Else, if the __CustomHand__ is holding any object, the _GrabEnd()_ function is initialized.
+3. While the controller is not holding any object, pressing the index trigger finger button will activate a laser pointer to better help point at what you are looking at.
+    * When the hand is controlling something, the custom pointer will deactivate until the controller lets go of the object. 
 
 ---
 
@@ -139,7 +141,11 @@ Inside the __PlayerWeapon__ object's _CustomGrabbable.cs_ variables, you can ref
 __Added: Version 1.1.0__
 
 
+The __CustomPointer__ is intended to be a prefab that does the following:
+* Performs a raycast from either itself or from a different ``Transform`` component of a different ``GameObject`` up to a distance defined by ``Raycast Distance``
+* When toggled, will create a line renders between the origin defined above and whatever the Raycast hits (or, if no such hit is detected, to a distance defined by ``Raycast Distance`` in front of the CustomPointer's origin point).
 
+The useful aspect about the __CustomPointer__ is that it performs raycast measurements, such that if you require any raycast functionality then the __CustomPointer__ can do that alongside rendering a laser - this raycast hit object is also accessibly publicly, so your object can simply reference the __CustomPointer.cs__'s public ``raycastTarget`` variable if needed.
 
 ---
 
