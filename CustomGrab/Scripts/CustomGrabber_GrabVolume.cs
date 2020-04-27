@@ -13,7 +13,7 @@ public class CustomGrabber_GrabVolume : MonoBehaviour
         set {   m_collisionRadius = value;  }
     }
 
-    [SerializeField]
+    // NOT SERIALIZED
     [Tooltip("Reference to all objects that are in range")]
     private List<Transform> m_inRange = new List<Transform>();
     public List<Transform> inRange {
@@ -24,9 +24,11 @@ public class CustomGrabber_GrabVolume : MonoBehaviour
         get {   return (m_inRange.Count > 0) ? m_inRange[0] : null; }
     }
 
+    /*
     [SerializeField]
     [Tooltip("GameObjects to exclude from the detection process")]
     private List<int> m_layersExcludedFromDetection = new List<int>();
+    */
 
     // NOT SERIALIZED
     [Tooltip("Stores all instantiated hovers")]
@@ -147,7 +149,8 @@ public class CustomGrabber_GrabVolume : MonoBehaviour
             c.enabled = m_canCollide;
         }
     }
-    
+
+    /*
     public void AddToExclusionList(string layer) {
         int layerID = LayerMask.NameToLayer(layer);
         if (!m_layersExcludedFromDetection.Contains(layerID)) {
@@ -163,5 +166,5 @@ public class CustomGrabber_GrabVolume : MonoBehaviour
         }
         return;
     }
-
+    */
 }
