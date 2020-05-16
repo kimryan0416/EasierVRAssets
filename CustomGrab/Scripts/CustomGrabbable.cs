@@ -17,9 +17,10 @@ public class CustomGrabbable : MonoBehaviour
     private List<CustomGrabber> grabbers = new List<CustomGrabber>();
     private Dictionary<CustomGrabber, Transform> heldBy = new Dictionary<CustomGrabber, Transform>();
     private bool m_grabbedKinematic;
-    private CustomGrabber m_GrabbedBy = null;
     private Transform originalParent = null;
     private int numGrabbersAllowed = 1;
+    private int m_originalLayer;
+    private Dictionary<int, int> m_childrenOriginalLayers = new Dictionary<int, int>();
     #endregion
 
     private void Start() {
@@ -27,6 +28,11 @@ public class CustomGrabbable : MonoBehaviour
         m_grabbedKinematic = m_RigidBody.isKinematic;
         originalParent = transform.parent;
         numGrabbersAllowed = (snapTransforms.Count > 0) ? snapTransforms.Count : 1;
+        m_originalLayer = this.gameObject.layer;
+        Transform[] children = this.GetComponentsInChildren<Transform>();
+        foreach (Transform c in children) {
+            m_childrenOriginalLayers.Add(c.gameObject.GetInstanceID(), c.gameObject.layer);
+        }
         foreach(Transform t in snapTransforms) {    snapTransformsTaken.Add(t, false);  }
         StartCoroutine(SetParent());
     }
@@ -46,13 +52,22 @@ public class CustomGrabbable : MonoBehaviour
         m_RigidBody.isKinematic = true;
         m_RigidBody.velocity = Vector3.zero;
         m_RigidBody.angularVelocity = Vector3.zero;
-
+        this.gameObject.layer = LayerMask.NameToLayer("AvoidHover");
+        Transform[] children = this.GetComponentsInChildren<Transform>();
+        foreach (Transform c in children) {
+            c.gameObject.layer = LayerMask.NameToLayer("AvoidHover");
+        }
         Transform snapTo = null;
         if (snapTransforms.Count > 0) { snapTo = FindClosestSnapTransform(g);   }
         AddGrabber(g, snapTo);
     }
     public void GrabEnd(CustomGrabber cg, Vector3 linearVelocity, Vector3 angularVelocity) {
         RemoveController(cg);
+        this.gameObject.layer = m_originalLayer;
+        Transform[] children = this.GetComponentsInChildren<Transform>();
+        foreach (Transform c in children) {
+            c.gameObject.layer = m_childrenOriginalLayers[c.gameObject.GetInstanceID()];
+        }
         if (grabbers.Count == 0) {
             m_RigidBody.isKinematic = m_grabbedKinematic;
             m_RigidBody.velocity = linearVelocity;
@@ -63,11 +78,11 @@ public class CustomGrabbable : MonoBehaviour
         Transform snapReference = heldBy[grabbers[0]];
         if (snapReference == null) {
             snapReference = this.transform;
-            transform.rotation = grabbers[0].grabVol.transform.rotation * Quaternion.Euler(45,0,0);
+            transform.rotation = grabbers[0].grabDestination.rotation * Quaternion.Euler(45,0,0);
         } else {
-            transform.rotation = (grabbers[0].grabVol.transform.rotation * Quaternion.Inverse(snapReference.localRotation)) * Quaternion.Euler(45,0,0);
+            transform.rotation = (grabbers[0].grabDestination.rotation * Quaternion.Inverse(snapReference.localRotation)) * Quaternion.Euler(45,0,0);
         }
-        transform.position = grabbers[0].grabVol.transform.position + (transform.position - snapReference.position);
+        transform.position = grabbers[0].grabDestination.position + (transform.position - snapReference.position);
     }
     public void AddGrabber(CustomGrabber cg, Transform to) {
         grabbers.Add(cg);
@@ -87,11 +102,11 @@ public class CustomGrabbable : MonoBehaviour
     }
     public List<OVRInput.Controller> GetGrabbers() {
         List<OVRInput.Controller> toReturn = new List<OVRInput.Controller>();
-        foreach(CustomGrabber cg in grabbers) { toReturn.Add(cg.GetController());   }
+        foreach(CustomGrabber cg in grabbers) { toReturn.Add(cg.OVRController);   }
         return toReturn;
     }
     public OVRInput.Controller GetGrabber() {
-        return grabbers[0].GetController();
+        return grabbers[0].OVRController;
     }
     public bool CanBeGrabbed() {
         return numGrabbersAllowed - grabbers.Count > 0;
@@ -104,9 +119,9 @@ public class CustomGrabbable : MonoBehaviour
             if (snapTransformsTaken[t]) {   continue;   }
             if (closest == null) {
                 closest = t;
-                distance = Vector3.Distance(cg.grabVol.transform.position, t.position);
+                distance = Vector3.Distance(cg.grabDestination.position, t.position);
             }
-            float tempDist = Vector3.Distance(cg.grabVol.transform.position, t.position);
+            float tempDist = Vector3.Distance(cg.grabDestination.position, t.position);
             if (tempDist < distance) {
                 closest = t;
                 distance = tempDist;
