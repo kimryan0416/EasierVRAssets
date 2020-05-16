@@ -4,6 +4,8 @@ Hello. My name is Ryan, and this is a guide for the __"EasierVRAssets"__ package
 
 The __"EasierVRAssets"__ package is a set of scripts and prefabs intended to make life a little easier for developers working with the Oculus Quest in Unity. While working with VR for school projects, I sometimes found that the __"Oculus Implementations"__ package available in the Unity Asset Store was very cumbersome to use and often had bugs in their code. I wanted to create a VR toolkit that would be simpler to use and more efficient in terms of workload on the developer.
 
+__"EasierVRAssets"__ does not rely on Unity's new XR systems. However, the __"Oculus Implementations"__ package has been slated to be removed from Unity support. For developers who wish to migrate to Unity XR's new system, I have a Github repository that offers tools and tips on how to develop VR apps with the new Unity XR system [here](https://github.com/kimryan0416/EasierXRAssets).
+
 In order to get this package working, you need to do several things prior:
 1. Make sure that on whatever version of Unity you are working with, that you have the Android DevTools installed in Unity.
 2. You must have the “Oculus Implementations” installed in your Unity project. The Oculus package is still required, as many scripts in __"EasierVRAssets"__ still utilize aspects of the code from the __"Oculus Implementations"__ package.
