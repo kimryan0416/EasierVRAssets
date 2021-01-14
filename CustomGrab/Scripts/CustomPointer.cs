@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-<<<<<<< HEAD
 /* ------------
 - The purpose of this component is to control a pointer (aka a Line Renderer) that is used for various functions such as pointing, pinging, and locomotion.
 - In virtual reality, pointing is a common tool utilized in various user interfaces because it affords for (semi-)accurate selection and targeting. 
@@ -24,37 +23,21 @@ public class CustomPointer: MonoBehaviour
 
     /// A storage reference to the Line Renderer component that is attached to this GameObject
     [Tooltip("Reference to LineRenderer")] // NOT SERIALIZED
-=======
-[RequireComponent(typeof(LineRenderer))]
-public class CustomPointer: MonoBehaviour
-{   
-
-    [SerializeField]
-    [Tooltip("Reference to grabber, if this requires a grabber to work")]
-    private CustomGrabber m_grabber = null;
-
-    // NOT SERIALIZED
-    [Tooltip("Reference to LineRenderer")]
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private LineRenderer m_LineRenderer;
     public LineRenderer lineRenderer {
         get {   return m_LineRenderer;  }
         set {   m_LineRenderer = value; }
     }
 
-<<<<<<< HEAD
     /// We can adjust our pointer to behave in certain ways.
     /// - Target = the pointer is meant to be used as a selection tool
     /// - Teleport = the pointer acts as teleportation destination selector
     /// - Set_Target = a target is determined by script, and the pointer is merely a line render between the hand and the set target
-=======
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private enum pointerType {
         Target,
         Teleport,
         Set_Target
     }
-<<<<<<< HEAD
     [SerializeField] [Tooltip("The type of pointer you wish to work with")]
     private pointerType m_pointerType;
     
@@ -62,17 +45,10 @@ public class CustomPointer: MonoBehaviour
     /// Laser - the line is a straight line, if the player wants it to be a straight line rather than a bezier curve
     /// Parabolic - the line arcs in a quadratic bezier curve. This makes it incredibly easy to select a destination because the player doesn't have to point their pointer downward.
     ///     In order to do a quadratic bezier curve, we need 3 points to reference. The three points are the pointer's current position, the end position of a forward-facing raycast that shoots out from the pointer, and the end position of a downward-facing raycast that starts from the previous raycast's end position.
-=======
-    [SerializeField]
-    [Tooltip("The type of pointer you wish to work with")]
-    private pointerType m_pointerType;
-    
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private enum laserType {
         Laser,
         Parabolic
     }
-<<<<<<< HEAD
     [SerializeField] [Tooltip("The type of laser to use for locomotion")]
     private laserType m_laserType;
 
@@ -86,40 +62,20 @@ public class CustomPointer: MonoBehaviour
 
     /// Storing the raycast's target point. Note that this is different from the pointer's destination point - the raycast doesn't curve.
     [Tooltip("Storage of raycast target, if any")] // NOT SERIALIZED
-=======
-    [SerializeField]
-    [Tooltip("The type of laser to use for locomotion")]
-    private laserType m_laserType;
-
-    // NOT SERIALIZED
-    [Tooltip("Get the pointer's hit position")]
-    private Vector3 m_pointerDest = Vector3.zero;
-    public Vector3 pointerDest {
-        get {   return m_pointerDest;   }
-    }
-    // NOT SERIALIZED
-    [Tooltip("storage of raycast target, if any")]
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private GameObject m_raycastTarget = null;
     public GameObject raycastTarget {
         get {   return m_raycastTarget;     }
         set {   m_raycastTarget = value;    }
     }
 
-<<<<<<< HEAD
     /// Storing the ryacast's origin point.
     [SerializeField] [Tooltip("The origin point from where the raycast should be performed")]
-=======
-    [SerializeField]
-    [Tooltip("The origin point from where the raycast should be performed")]
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private Transform m_raycastOrigin;
     public Transform raycastOrigin {
         get {   return m_raycastOrigin;     }
         set {   m_raycastOrigin = value;    }
     }
 
-<<<<<<< HEAD
     /// How far is the forward-facing raycast allowed to travel?
     [SerializeField] [Tooltip("The distance the raycast is permitted to travel - default = 100 meters")]
     private float m_raycastDistance = 100f;
@@ -154,29 +110,12 @@ public class CustomPointer: MonoBehaviour
 
     /// The color of the line renderer
     [SerializeField] [Tooltip("The color the line must be rendered with")]
-=======
-    [SerializeField]
-    [Tooltip("The distance the raycast is permitted to travel - defaul = 100 meters")]
-    private float m_raycastDistance = 100f;
-    public float raycastDistance {
-        get {   return m_raycastDistance;   }
-        set {   m_raycastDistance = value;  }
-    }
-
-    // NOT SERIALIZED
-    [Tooltip("the list of points the line renderer will render - must be converted into Vector3[] to use properly")]
-    private List<Vector3> m_linePoints = new List<Vector3>();
-
-    [SerializeField]
-    [Tooltip("The color the line must be rendered with")]
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private Color m_lineColor = new Color32(255, 255, 0, 255);
     public Color lineColor {
         get {   return m_lineColor;     }
         set {   m_lineColor = value;    }
     }
 
-<<<<<<< HEAD
     /// There may be cases where we should be still perform the raycast to select a target, without activating the line renderer. If TRUE, the raycast will still look for hit detection despite the pointer not being active.
     [SerializeField] [Tooltip("The detection of a raycast target can only be performed when the pointer is activated")]
     private bool m_detectOnlyWhenLineSet = false;
@@ -187,46 +126,26 @@ public class CustomPointer: MonoBehaviour
 
     /// How many points should the line renderer use when printing the line?
     [SerializeField] [Tooltip("The number of points the line renderer will use when printing the line")]
-=======
-    [SerializeField]
-    [Tooltip("The detection of a raycast target can only be performed when the pointer is activated")]
-    private bool m_detectOnlyWhenActivated = false;
-    public bool detectOnlyWhenActivated {
-        get {   return m_detectOnlyWhenActivated;   }
-        set {   m_detectOnlyWhenActivated = value;  }
-    }
-
-    [SerializeField]
-    [Tooltip("The number of points the line renderer will use when printing the line")]
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private int m_numPoints = 30;
     public int numPoints {
         get {   return m_numPoints; }
         set {   m_numPoints = value;}
     }
 
-<<<<<<< HEAD
     /// Where should the locomotion destination position be? Only important to `CustomLocomotion`
     [Tooltip("The location where the player must teleport to - only important to locomotion")] // NOT SERIALIZED
-=======
-    // NOT SERIALIZED
-    [Tooltip("The location where the player must teleport to - only important to locomotion")]
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private Vector3 m_locomotionPosition = Vector3.zero;
     public Vector3 locomotionPosition {
         get {   return m_locomotionPosition;    }
         set {   m_locomotionPosition = value;   }
     }
 
-<<<<<<< HEAD
     /// Reference to a hover cursor prefab that is used when the pointer hovers over something.
     /// When we hover over a grabbable or detectable object with our pointer, a hover cursor is rendered around the object to let the user know that they can interact with it.
     [SerializeField] [Tooltip("Reference to the hover cursor prefab")]
-=======
-    [SerializeField]
-    [Tooltip("Reference to the hover cursor prefab")]
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private HoverCursor m_hoverCursor;
+    [SerializeField] [Tooltip("Should we use a hover cursor?")]
+    private bool m_shouldUseHoverCursor = true;
     private HoverCursor m_instantiatedHoverCursor;
     public HoverCursor instantiatedHoverCursor {
         get {   return m_instantiatedHoverCursor;   }
@@ -236,7 +155,6 @@ public class CustomPointer: MonoBehaviour
         }
     }
 
-<<<<<<< HEAD
     /// Sometimes, ojbects are too far away to be detected by a single raycast. In this case, we can use a volumetric detection method that
     ///     uses hit collision rather than a raycast to detect far-away objects. 
     /// The volume used is a series of cylinders that increase in radius the further we go out from the raycast origin point.
@@ -251,6 +169,9 @@ public class CustomPointer: MonoBehaviour
     [SerializeField] [Tooltip("Transform gameObject used for volume-based detection")]
     private List<Transform> m_volumeDetectors = new List<Transform>();
 
+    [SerializeField] [Tooltip("All layer masks that are supposed to be ignored")]
+    private List<string> m_layersToIgnore = new List<string>();
+
     /// Debug Mode simply turns on all rendered lines, volumetric cylinders, and cursors for debugging
     [SerializeField] [Tooltip("For debugging purposes")]
     private bool m_debugMode = false;
@@ -259,37 +180,13 @@ public class CustomPointer: MonoBehaviour
         set {   SetDebugMode(value);    }
     }
 
+    [SerializeField] [Tooltip("For debugging purposes")]
+    private List<GameObject> m_debugObjects = new List<GameObject>();
+
     [SerializeField] [Tooltip("FOR DEBUGGING")]
     private GameObject m_XYZ;
 
     /// is this component active?
-=======
-    //[SerializeField]
-    //private bool m_showTransparentLine = false;
-    // Here's the rub:
-    // The idea is that when "m_detectOnlyWhenActivated" is set to TRUE...
-    //  ... then the custompointer will report the target as whatever's colliding with it...
-    //  ... when the trigger is pressed
-    // When "m_showTransparentLine" is set to TRUE...
-    //  ... then the line's material will change
-    // There are some things to keep in mind:
-    // 1) the line renderer will ALWAYS be enabled
-    // 2) the line renderer's appearance will change depending on the "m_showTransparentLine" parameter
-    // 3) the line renderer's public target (not private target) will be set to NULL depending on the "m_detectOnlyWhenActivated" parameter
-
-    [SerializeField]
-    [Tooltip("For debugging purposes")]
-    private bool m_debugMode = false;
-    public bool debugMode {
-        get {   return m_debugMode;     }
-        set {   m_debugMode = value;    }
-    }
-
-    [SerializeField]
-    [Tooltip("FOR DEBUGGING")]
-    private GameObject m_XYZ;
-
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     // NOT SERIALIZED
     private bool m_isActive = false;
     public bool isActive {
@@ -297,22 +194,18 @@ public class CustomPointer: MonoBehaviour
         set {   m_isActive = value; }
     }
     
-<<<<<<< HEAD
     /// We can ascertain that only certain layers are being detected by the forward-facing raycast by using layer masks
     // The layer masks here are ones that our raycasters are NOT meant to detect
-=======
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     // NOT SERIALIZED
     private int layerMaskHover, layerMaskLocomotion, combinedLayerMask;
     private List<int> m_layerMasks = new List<int>();
 
-<<<<<<< HEAD
     #endregion
     #region Unity callbacks
 
     /// If we're supposed to initialize upon scene starting, we do so.
     private void Start() {
-        if (m_shouldStart) Init(true);
+        if (m_shouldStart) Init(true, m_grabber);
     }
 
     /// In each frame, we need to get the points for our line renderer, then detect if we've hit anything with our pointer, then render our linerenderer
@@ -326,85 +219,48 @@ public class CustomPointer: MonoBehaviour
         if (m_detectOnlyWhenLineSet) {    m_raycastTarget = (m_LineRenderer.enabled) ? m_raycastTarget : null;    }
 
         // This only applies if 1) our pointer is not a teleporting one, and 2) we have a hover cursor prefab set
-        if (m_pointerType != pointerType.Teleport && m_hoverCursor != null) {
+        if (m_pointerType != pointerType.Teleport && m_shouldUseHoverCursor && m_hoverCursor != null) {
             // if we're hitting something with our raycast and that something is in a layer that is allowed to be hovered over...
-            if (m_raycastTarget != null && m_raycastTarget.gameObject.layer != layerMaskHover) {
+            if (m_raycastTarget != null && m_raycastTarget.gameObject.layer != layerMaskHover && m_raycastTarget.gameObject.layer != LayerMask.NameToLayer("UI")) {
                 // If we already have an instantiated hover cursor...
                 if (instantiatedHoverCursor != null) {
                     // ... and that gameobject's reference ID doesn't match that of the raycast's target...
                     if (!GameObject.ReferenceEquals(instantiatedHoverCursor.target, m_raycastTarget)) {
                         // ... then we delete that existing Hover Cursor, create a new one, and initialize it to follow our raycast target (the hover cursors are their own class)
-=======
-    public void Init(bool canStart = false) {
-        m_LineRenderer = this.GetComponent<LineRenderer>();
-        if (m_raycastOrigin == null) {  m_raycastOrigin = this.transform;   }
-        
-        layerMaskHover = 1 << LayerMask.NameToLayer("AvoidHover");
-        layerMaskHover = ~layerMaskHover;
-        layerMaskLocomotion = 1 << LayerMask.NameToLayer("Locomotion");
-        layerMaskLocomotion = ~layerMaskLocomotion;
-        combinedLayerMask = layerMaskHover | layerMaskLocomotion;
-
-        m_LineRenderer.positionCount = m_numPoints;
-
-        if (canStart) Activate();
-    }
-
-    private void Update() {
-        if (!m_isActive) return;
-        // (if in debug mode, turn on XYZ)
-        m_XYZ.SetActive(m_debugMode);
-        // Update start position
-
-        m_linePoints = GetPoints();
-
-        if (m_detectOnlyWhenActivated) {
-            m_raycastTarget = (m_LineRenderer.enabled) ? m_raycastTarget : null;
-        }
-
-        if (m_pointerType != pointerType.Teleport && m_hoverCursor != null) {
-            if (m_raycastTarget != null && m_raycastTarget.gameObject.layer != layerMaskHover) {
-                if (instantiatedHoverCursor != null) {
-                    if (!GameObject.ReferenceEquals(instantiatedHoverCursor.target, m_raycastTarget)) {
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
                         instantiatedHoverCursor.Relieve();
                         instantiatedHoverCursor = Instantiate(m_hoverCursor,Vector3.zero,Quaternion.identity);
                         instantiatedHoverCursor.Init(m_raycastTarget.transform, m_lineColor);
                     }
-<<<<<<< HEAD
                 } 
                 else {  // If we don't have a hover cursor already instantiated in the world, then we instantiate a hover cursor
-=======
-                } else {
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
                     instantiatedHoverCursor = Instantiate(m_hoverCursor,Vector3.zero,Quaternion.identity);
                     instantiatedHoverCursor.Init(m_raycastTarget.transform, m_lineColor);
                 }
             } 
-<<<<<<< HEAD
             else if (instantiatedHoverCursor != null) { 
                 // Either our raycast isn't hitting something or our target has a layer that's meant to be avoided, so we should relieve the hover cursor if it exists
-=======
-            else if (instantiatedHoverCursor != null) {
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
                 instantiatedHoverCursor.Relieve();
                 instantiatedHoverCursor = null;
             }
         } 
 
-<<<<<<< HEAD
         // if our line renderer itself is active, we render the line
-=======
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
         if (m_LineRenderer.enabled) {   
             m_LineRenderer.material.SetColor("_Color", m_lineColor);
             m_LineRenderer.positionCount = m_numPoints;
             Vector3[] points = m_linePoints.ToArray();
             m_LineRenderer.SetPositions(points); 
         }
+
+        // If in debug mode, make objects appear or disappear based on if the pointer is hitting something
+        if (m_debugMode) {
+            bool isHitting = (m_raycastTarget != null);
+            foreach(GameObject oj in m_debugObjects) {
+                oj.SetActive(isHitting);
+            }
+        }
     }
 
-<<<<<<< HEAD
     #endregion
     #region Initializers
 
@@ -414,8 +270,15 @@ public class CustomPointer: MonoBehaviour
         if (m_raycastOrigin == null) {  m_raycastOrigin = this.transform;   }
         m_grabber = grabber;
         m_raycastDownwardDistance = m_raycastDistance;
-        
+
         layerMaskHover = 1 << LayerMask.NameToLayer("AvoidHover");
+        foreach(string s in m_layersToIgnore) {
+            int thisLayerID = LayerMask.NameToLayer(s);
+            if (thisLayerID > -1) {
+                int thisLayerMask = 1 << thisLayerID;
+                layerMaskHover = layerMaskHover | thisLayerMask;
+            }
+        }
         layerMaskHover = ~layerMaskHover;
         layerMaskLocomotion = 1 << LayerMask.NameToLayer("Locomotion");
         layerMaskLocomotion = ~layerMaskLocomotion;
@@ -454,13 +317,10 @@ public class CustomPointer: MonoBehaviour
     #region Raycasting Functions
 
     /// In this function, we 1) perform the necessary raycasts to get our pointer's target, and 2) generate the necessary points to generate the pointer's line renderers
-=======
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private List<Vector3> GetPoints() {
         List<Vector3> points = new List<Vector3>();
         Vector3 destination;
 
-<<<<<<< HEAD
         // The end destination of our pointer and the lines the line renderer will render with is dependent on the type of pointer we're using. 
         switch(m_pointerType) {
             case(pointerType.Target):
@@ -468,12 +328,6 @@ public class CustomPointer: MonoBehaviour
                 m_pointerDest = CheckRaycastForward(layerMaskHover);
                 destination = CheckRaycastDownward(m_pointerDest);
                 // Based on our laser type, the line renderer will generate points to create either a curve or straight line.
-=======
-        switch(m_pointerType) {
-            case(pointerType.Target):
-                m_pointerDest = CheckRaycastForward(layerMaskHover);
-                destination = CheckRaycastDownward(m_pointerDest);
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
                 switch(m_laserType) {
                     case(laserType.Laser):
                         points = BezierCurves.DetermineLinearCurve(m_numPoints,m_raycastOrigin.position,m_pointerDest,0);
@@ -484,15 +338,10 @@ public class CustomPointer: MonoBehaviour
                 }
                 break;
             case(pointerType.Teleport):
-<<<<<<< HEAD
                 // Our pointer will only get a destination based on if we're grabbing anything in the hand. This is because an object being held in the hand can block the pointer, which is inconducive if we want to teleport elsewhere.
                 m_pointerDest = (m_grabber != null && m_grabber.grabbedObject != null) ? CheckRaycastForward(combinedLayerMask) : CheckRaycastForward(layerMaskLocomotion);
                 destination = CheckRaycastDownward(m_pointerDest);
                 // Based on our laser type, the line renderer will generate points to create either a curve or straight line.
-=======
-                m_pointerDest = (m_grabber != null && m_grabber.grabbedObject != null) ? CheckRaycastForward(combinedLayerMask) : CheckRaycastForward(layerMaskLocomotion);
-                destination = CheckRaycastDownward(m_pointerDest);
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
                 switch(m_laserType) {
                     case(laserType.Laser):
                         points = BezierCurves.DetermineLinearCurve(m_numPoints,m_raycastOrigin.position,m_pointerDest,0);
@@ -505,28 +354,18 @@ public class CustomPointer: MonoBehaviour
                 }
                 break;
             case(pointerType.Set_Target):
-<<<<<<< HEAD
                 // In this case, we have a target pre-selected already. Our pointer destination is merely either that target's position, or nothing (aka the origin point, which will not generate a line)
                 destination = (m_raycastTarget != null) ? m_raycastTarget.transform.position : m_raycastOrigin.position;
                 // The line renderer's points, in this case, is always going to be a linear line.
-=======
-                destination = (m_raycastTarget != null) ? m_raycastTarget.transform.position : m_raycastOrigin.position;
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
                 points = BezierCurves.DetermineLinearCurve(m_numPoints,m_raycastOrigin.position,destination,0);
                 break;
         }
 
-<<<<<<< HEAD
         // We return the points we've generated.
         return points;
     }
  
     // The first step is to send a raycast 
-=======
-        return points;
-    }
- 
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     private Vector3 CheckRaycastForward(int layersToAvoid = 1 << 3) {
         RaycastHit rayHit;
         Vector3 returnPoint = m_raycastOrigin.position + m_raycastOrigin.forward * m_raycastDistance;
@@ -535,7 +374,6 @@ public class CustomPointer: MonoBehaviour
             m_raycastTarget = rayHit.transform.gameObject;
             returnPoint = rayHit.point;
         } else {
-<<<<<<< HEAD
             // Now, this is actually crucial.
             // If our raycast hit something, then we don't actually need to worry about this step... but sometimes, our raycast is trying to hit something far away, and our pointer isn't really having a good time. In these situations, we need volume-based detection.
             // Now, here's the conundrum: we can do volume-based detection, but the hard part is deciding how to select objects
@@ -604,30 +442,14 @@ public class CustomPointer: MonoBehaviour
             // Floor is hit
             destination = new Vector3(origin.x, rayHit.point.y, origin.z);
             m_raycastDownwardHit = true;
-=======
-            m_raycastTarget = null;
-        }
-        return returnPoint;
-    }
-
-    private Vector3 CheckRaycastDownward(Vector3 origin) {
-        RaycastHit rayHit;
-        Vector3 destination = origin;
-        if (Physics.Raycast(origin, -Vector3.up, out rayHit, Mathf.Infinity, layerMaskLocomotion)) {
-            // Floor is hit
-            destination = new Vector3(origin.x, rayHit.point.y, origin.z);
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
         }
         return destination;
     }
 
-<<<<<<< HEAD
     #endregion
     #region Getters and Setters
 
     // A series of Get functions that return boolean values based on certain conditions
-=======
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     public bool isTargetType() {
         return m_pointerType == pointerType.Target;
     }
@@ -637,7 +459,6 @@ public class CustomPointer: MonoBehaviour
     public bool isSetTargetType() {
         return m_pointerType == pointerType.Set_Target;
     }
-<<<<<<< HEAD
 
     // We use this function as a Get function for the type of pointer.
     // This is necessary because the `pointerType` is not a static class and therefore is only scopable within this class. We need to interpret strings and convert them into `pointerType` enum values
@@ -659,8 +480,6 @@ public class CustomPointer: MonoBehaviour
 
     // We use this function if we want to programmatically change the kind of pointer we're working with.
     // This is necessary because the `pointerType` is not a static class and therefore is only scopable within this class. We need to interpret strings and convert them into `pointerType` enum values
-=======
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     public void SetPointerType(string t, GameObject targetForSet = null) {
         switch(t) {
             case("Target"):
@@ -676,15 +495,7 @@ public class CustomPointer: MonoBehaviour
         }
         return;
     }
-<<<<<<< HEAD
     // We can also set our laser type here, if we wish to change the laser type programmatically
-=======
-
-    public void SetTarget(GameObject targetForSet = null) {
-        m_raycastTarget = targetForSet;
-    }
-
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     public void SetLaserType(string t) {
         switch(t) {
             case("Laser"):
@@ -696,28 +507,12 @@ public class CustomPointer: MonoBehaviour
         }
         return;
     }
-<<<<<<< HEAD
     // A Set function that sets the target for our raycast - used for when our pointer type is `Set_Target`
     public void SetTarget(GameObject targetForSet = null) {
         m_raycastTarget = targetForSet;
     }
 
     // A series of getters and setters pertaining to the line renderer itself
-=======
-
-
-    public void Activate() {
-        m_isActive = true;
-    }
-    public void Deactivate() {
-        m_isActive = false;
-        Vector3[] points = new Vector3[30];
-        for (int i = 0; i < points.Length; i++) {
-            points[i] = Vector3.zero;
-        }
-        m_LineRenderer.SetPositions(points);
-    }
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
     public bool LineIsEnabled() {
         return m_LineRenderer.enabled;
     }
@@ -733,12 +528,18 @@ public class CustomPointer: MonoBehaviour
     public void LineOn() {
         m_LineRenderer.enabled = true;
     }
-<<<<<<< HEAD
     public void LineOff(OVRInput.Controller c) {
         if (c == m_grabber.OVRController) m_LineRenderer.enabled = (!m_debugMode) ? false : true;
     }
     public void LineOn(OVRInput.Controller c) {
         if (c == m_grabber.OVRController) m_LineRenderer.enabled = true;
+    }
+
+    public void DisableHoverCursor() {
+        m_shouldUseHoverCursor = false;
+    }
+    public void EnableHoverCursor() {
+        m_shouldUseHoverCursor = true;
     }
 
     // Set our debug mode
@@ -751,6 +552,4 @@ public class CustomPointer: MonoBehaviour
     }
 
     #endregion
-=======
->>>>>>> c82efec4878c9490084e46fa0d09d909a2222c5f
 }

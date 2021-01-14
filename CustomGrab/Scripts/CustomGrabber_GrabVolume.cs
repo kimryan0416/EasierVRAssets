@@ -102,7 +102,8 @@ public class CustomGrabber_GrabVolume : MonoBehaviour
         // Execute while loop
         while(true) {
             // get all gameobjects in range
-            m_inRange = CommonFunctions.GetInRange<Transform, CustomGrabbable, HoverCursor>(m_collisionOrigin, m_collisionRadius, LayerMask.NameToLayer("AvoidHover"));
+            // m_inRange = CommonFunctions.GetInRange<Transform, CustomGrabbable, HoverCursor>(m_collisionOrigin, m_collisionRadius, LayerMask.NameToLayer("AvoidHover"));
+            m_inRange = CommonFunctions.GetInRange<Transform, CustomGrabbable, HoverCursor>(m_collisionOrigin, m_collisionRadius);
             if (m_hoverCursorPrefab == null) {
                 m_collisionOrigin.GetComponent<Renderer>().material.color = (m_inRange.Count > 0) ? m_hoverColor : m_originalColor;
             } else {

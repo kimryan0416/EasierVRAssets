@@ -24,15 +24,24 @@ public class CustomEvents : MonoBehaviour
     [Tooltip("Links between strings and actual OVR inputs")]
     private Dictionary<string, OVRInput.Button> m_buttonMappings = new Dictionary<string, OVRInput.Button>();
 
-    [SerializeField]
-    [Tooltip("Hand references")]
+    [Tooltip("Saving the pointer raycast target of each hand")]
+    private Dictionary<string, GameObject> m_pointerTargets = new Dictionary<string, GameObject>();
+    private Dictionary<string, bool> m_pointerTargetsChanged = new Dictionary<string, bool>();
+
+    [Tooltip("Saving the grabbed object of each hand")]
+    private Dictionary<string, CustomGrabbable> m_grabbedObjects = new Dictionary<string, CustomGrabbable>();
+    private Dictionary<string, bool> m_grabbedObjectsChanged = new Dictionary<string, bool>();
+
+    [SerializeField] [Tooltip("Hand references")]
     private CustomGrabber m_leftHand, m_rightHand;
 
-    [SerializeField]
-    [Tooltip("Track times when buttons are pressed down")]
+    [SerializeField] [Tooltip("Track times when buttons are pressed down")]
     private bool m_trackingTime = false, m_trackingDown = true;
-    [SerializeField]
-    [Tooltip("List of colliders that must be tracked")]
+    [SerializeField] [Tooltip("Track pointer targets toggle")]
+    private bool m_trackingPointerTargets = true;
+    [SerializeField] [Tooltip("Track grabbed objects toggle")]
+    private bool m_trackingGrabbedObjects = true;
+    [SerializeField] [Tooltip("List of colliders that must be tracked")]
     private List<CustomGrabber_GrabVolume> m_colliders = new List<CustomGrabber_GrabVolume>();
 
     private void Awake() {
@@ -44,6 +53,8 @@ public class CustomEvents : MonoBehaviour
     private void Update() {
         if (m_trackingTime) CheckTimes();
         if (m_trackingDown) CheckDowns();
+        if (m_trackingGrabbedObjects) CheckGrabbedObjects();
+        if (m_trackingPointerTargets) CheckPointerTargets();
         UpdateEvents();
     }
 
@@ -75,6 +86,15 @@ public class CustomEvents : MonoBehaviour
         // Left Joystick
         m_thumbDirections.Add("left",Vector2.zero);
         m_thumbAngles.Add("left",Vector2.zero);
+
+        // Grab object
+        m_grabbedObjects.Add("left",null);
+
+        // If there's a pointer...
+        if (m_leftHand.pointer != null) {
+            m_pointerTargets.Add("left",null);
+        }
+
     }
     // Right controller prep - returns early
     private void PrepareRight(CustomGrabber g) {
@@ -101,6 +121,14 @@ public class CustomEvents : MonoBehaviour
         // Right joystick
         m_thumbDirections.Add("right",Vector2.zero);
         m_thumbAngles.Add("right",Vector2.zero);
+
+        // Grab object
+        m_grabbedObjects.Add("right",null);
+
+        // If there's a pointer...
+        if (m_rightHand.pointer != null) {
+            m_pointerTargets.Add("right",null);
+        }
     }
 
     private void CheckTimes() {
@@ -160,6 +188,65 @@ public class CustomEvents : MonoBehaviour
         m_thumbDirections["right"]      = Vector2.ClampMagnitude(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, OVRInput.Controller.RTouch), 1f);
         m_thumbAngles["right"]          = new Vector2(CommonFunctions.GetAngleFromVector2(m_thumbDirections["right"], OVRInput.Controller.RTouch), Vector2.Distance(Vector2.zero, m_thumbDirections["right"]));
         return;
+    }
+
+    private void CheckGrabbedObjects() {
+        if (m_leftHand != null) CheckLeftGrabbedTargets();
+        if (m_rightHand != null) CheckRightGrabbedTargets();
+    }
+    private void CheckLeftGrabbedTargets() {
+        if (
+            //(m_grabbedObjects["left"] == null && m_leftHand.grabbedObject != null) 
+            //|| (m_grabbedObjects["left"] != null && m_leftHand.grabbedObject == null) 
+            //|| (m_grabbedObjects["left"] != null && m_leftHand.grabbedObject != null && m_grabbedObjects["left"] != m_leftHand.grabbedObject)
+            m_grabbedObjects["left"] != m_leftHand.grabbedObject
+        ) {
+            m_grabbedObjectsChanged["left"] = true;
+        } else {
+            m_grabbedObjectsChanged["left"] = false;
+        }
+        m_grabbedObjects["left"] = m_leftHand.grabbedObject;
+    }
+    private void CheckRightGrabbedTargets() {
+        if (
+            (m_grabbedObjects["right"] == null && m_rightHand.grabbedObject != null) ||
+            (m_grabbedObjects["right"] != null && m_rightHand.grabbedObject == null) ||
+            (m_grabbedObjects["right"] != null && m_rightHand.grabbedObject != null && m_grabbedObjects["right"].gameObject.GetInstanceID() != m_rightHand.grabbedObject.gameObject.GetInstanceID())
+        ) {
+            m_grabbedObjectsChanged["right"] = true;
+        } else {
+            m_grabbedObjectsChanged["right"] = false;
+        }
+        m_grabbedObjects["right"] = m_rightHand.grabbedObject;
+    }
+
+    private void CheckPointerTargets() {
+        if (m_leftHand != null) CheckLeftPointerTargets();
+        if (m_rightHand != null) CheckRightPointerTargets();
+    }
+    private void CheckLeftPointerTargets() {
+        if (
+            (m_pointerTargets["left"] == null && m_leftHand.pointer.raycastTarget != null) ||
+            (m_pointerTargets["left"] != null && m_leftHand.pointer.raycastTarget == null) ||
+            (m_pointerTargets["left"] != null && m_leftHand.pointer.raycastTarget != null && m_pointerTargets["left"].GetInstanceID() != m_leftHand.pointer.raycastTarget.GetInstanceID())
+        ) {
+            m_pointerTargetsChanged["left"] = true;
+        } else {
+            m_pointerTargetsChanged["left"] = false;
+        }
+        m_pointerTargets["left"] = m_leftHand.pointer.raycastTarget;
+    }
+    private void CheckRightPointerTargets() {
+        if (
+            (m_pointerTargets["right"] == null && m_rightHand.pointer.raycastTarget != null) ||
+            (m_pointerTargets["right"] != null && m_rightHand.pointer.raycastTarget == null) ||
+            (m_pointerTargets["right"] != null && m_rightHand.pointer.raycastTarget != null && m_pointerTargets["right"].GetInstanceID() != m_rightHand.pointer.raycastTarget.GetInstanceID())
+        ) {
+            m_pointerTargetsChanged["right"] = true;
+        } else {
+            m_pointerTargetsChanged["right"] = false;
+        }
+        m_pointerTargets["right"] = m_rightHand.pointer.raycastTarget;
     }
 
     private void UpdateEvents() {
@@ -272,6 +359,22 @@ public class CustomEvents : MonoBehaviour
         }
         if (m_thumbDirections["right"] != Vector2.zero) {
             current.RightThumbDirection(OVRInput.Controller.RTouch, m_thumbDirections["right"], m_thumbAngles["right"]);
+        }
+
+        // Grabbed Objects
+        if (m_grabbedObjectsChanged["left"]) {
+            current.LeftHandGrabbedChanged(OVRInput.Controller.LTouch, m_grabbedObjects["left"]);
+        }
+        if (m_grabbedObjectsChanged["right"]) {
+            current.RightHandGrabbedChanged(OVRInput.Controller.RTouch, m_grabbedObjects["right"]);
+        }
+
+        // Pointer Targets
+        if (m_pointerTargetsChanged["left"]) {
+            current.LeftPointerTargetChanged(OVRInput.Controller.LTouch, m_pointerTargets["left"]);
+        }
+        if (m_pointerTargetsChanged["right"]) {
+            current.RightPointerTargetchanged(OVRInput.Controller.RTouch, m_pointerTargets["right"]);
         }
     }
 
@@ -404,5 +507,36 @@ public class CustomEvents : MonoBehaviour
     }
     public void TriggerExit(Collider trigger, GameObject obj) {
         onTriggerExit?.Invoke(trigger, obj);
+    }
+
+    // grabbed objects events
+    public event Action<OVRInput.Controller, CustomGrabbable> onLeftHandGrabbedChanged, onRightHandGrabbedChanged;
+    public event Action<CustomGrabbable> onLeftGrabbedTurnedOn, onLeftGrabbedTurnedOff, onRightGrabbedTurnedOn, onRightGrabbedTurnedOff;
+    public void LeftHandGrabbedChanged(OVRInput.Controller c, CustomGrabbable cg) {
+        onLeftHandGrabbedChanged?.Invoke(c, cg);
+    }
+    public void RightHandGrabbedChanged(OVRInput.Controller c, CustomGrabbable cg) {
+        onRightHandGrabbedChanged?.Invoke(c, cg);
+    }
+    public void LeftGrabbedTurnedOn(CustomGrabbable cg) {
+        onLeftGrabbedTurnedOn?.Invoke(cg);
+    }
+    public void LeftGrabbedTurnedOff(CustomGrabbable cg) {
+        onLeftGrabbedTurnedOff?.Invoke(cg);
+    }
+    public void RightGrabbedTurnedOn(CustomGrabbable cg) {
+        onRightGrabbedTurnedOn?.Invoke(cg);
+    }
+    public void RightGrabbedTurnedOff(CustomGrabbable cg) {
+        onRightGrabbedTurnedOff?.Invoke(cg);
+    }
+
+    // pointer target events
+    public event Action<OVRInput.Controller, GameObject> onLeftPointerTargetChanged, onRightPointerTargetChanged;
+    public void LeftPointerTargetChanged(OVRInput.Controller c, GameObject go) {
+        onLeftPointerTargetChanged?.Invoke(c, go);
+    }
+    public void RightPointerTargetchanged(OVRInput.Controller c, GameObject go) {
+        onRightPointerTargetChanged?.Invoke(c, go);
     }
 }

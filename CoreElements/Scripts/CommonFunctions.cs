@@ -6,6 +6,22 @@ using System.Linq;
 [System.Serializable]
 public class CommonFunctions : MonoBehaviour
 {
+    // idsToIgnore = gameobject IDs
+    public static List<Out> GetInRange<Out, Check>(Transform origin, float rad, int idToIgnore) {
+        if (origin == null) return null;
+        Dictionary<Out, float> possible = new Dictionary<Out, float>();
+        Collider[] hitColliders = Physics.OverlapSphere(origin.position, rad);
+        foreach (Collider c in hitColliders) {
+            if (c.GetComponent<Check>() != null && idToIgnore!=c.gameObject.GetInstanceID()) {
+                possible.Add(c.GetComponent<Out>(), Vector3.Distance(origin.position, c.transform.position));
+            }
+        }
+        List<Out> inRange = possible.OrderBy(x => x.Value).Select(pair => pair.Key).ToList();
+        
+        //inRange = inRange.OrderBy(x => Vector3.Distance(origin.position, x.transform.position)).ToList();
+        return inRange;
+    }
+
     public static List<Out> GetInRange<Out, Check, Exclude>(Transform origin, float rad) {
         if (origin == null) return null;
         Dictionary<Out, float> possible = new Dictionary<Out, float>();
@@ -71,4 +87,16 @@ public class CommonFunctions : MonoBehaviour
         // Return
         return angle;
     }
+
+    public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Quaternion rotation)
+     {
+         //Get a direction from the pivot to the point
+         Vector3 dir = point - pivot;
+         //Rotate vector around pivot
+         dir = rotation * dir; 
+         //Calc the rotated vector
+         point = dir + pivot; 
+         //Return calculated vector
+         return point; 
+     }
 }
