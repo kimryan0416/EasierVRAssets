@@ -20,6 +20,8 @@ The following details are mentioned here:
             * Serialized Variables in Inspector
             * Public Methods
         * EVRA_GrabTrigger
+            * Public Variables
+            * Public Methods
     * Setting up a Grabbabe Object
     * Setting up a Grabber
 3. Event Logic
