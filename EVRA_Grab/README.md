@@ -71,7 +71,7 @@ When viewing the following scripts inside of the Inspector, you will see the fol
 |`Collision Origin`|`Transform`|Reference to a `Transform` that will be the center point for the grabbing. If not set, then the object itself will be used as the `Collision Origin`|
 |`GrabType`|`GrabType`|Depending on the setting, the grab mechanism will either be local to the `Collision Origin's` Box Collider, to targets at a distance (via using `EVRA_Pointer`), or both.|
 
-##### Public Methods
+#### Public Methods
 |Method|Return Type|Description|
 |:-|:-|:-|
 |`GrabBegin()`|`void`|Initializes the grabbing mechanism.|
