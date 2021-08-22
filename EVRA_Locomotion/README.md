@@ -31,7 +31,7 @@ The following details are mentioned here:
 This package comes with the following (The __bolded__ ones require your upmost attention):
 * Prefabs:
     * __EVRA_LocCursor.prefab__
-    * OVRControllerPrefab.prefab
+    * __EVRA_Locomotion.prefab__
 * Scripts:
     * __EVRA_Locomotion.cs__
     * __EVRA_LocCursor.cs__
@@ -103,7 +103,7 @@ This package requires the following packages or dependencies in order to work:
 
 ### Usage with OVRPlayerController
 
-The Prefab `EVRA_Locomotion` can be placed in the following location inside of the `OVRPlayerController`:
+The `EVRA_Locomotion` prefab can be placed anywhere in the scene hierarchy. If attempting to manually add the `EVRA_Locomotion.cs` component to an existing object, it is recommended that it is added at the following location inside of the `OVRPlayerController`:
 
 * __*OVRPlayerController*__
 
