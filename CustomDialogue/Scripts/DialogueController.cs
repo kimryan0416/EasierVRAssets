@@ -248,7 +248,8 @@ public class DialogueController : MonoBehaviour
             m_BeingPointedBy = null;
             return;
         }
-        
+
+        /*
         // If our received game object matches our textbox background, we assign being pointed by to this.
         if (go != null && go.GetInstanceID() == m_MainTextbox.textboxBackground.GetInstanceID()) {
             m_BeingPointedBy = g.pointer;
@@ -261,6 +262,7 @@ public class DialogueController : MonoBehaviour
         } else {
             m_DialogueTarget = null;
         }
+        */
 
         return;
     }

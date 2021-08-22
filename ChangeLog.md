@@ -1,4 +1,43 @@
-# EasierVRAssets - Change Log (Most Recent: V1.2.0)
+# EasierVRAssets - Change Log (Most Recent: V2.0.0)
+
+## Version 2.0.0
+
+### Major updates:
+
+* `CustomGrab` sub-package renamed to `EVRA_Grab`.
+* New sub-packages; pulled out of `EVRA_Grab` and placed into their own sub-packages, to better componentize the functions of EasierVRAssets:
+    * `EVRA_CoreElements` - Contains core scripts and prefabs needed to run a bare-bones VR implementation
+    * `EVRA_Pointer` - sub-package needed to allow for line pointers. Can be used with other sub-packages (ex. distance grabbing, locomotion).
+    * `EVRA_Locomotion` - sub-package needed to allow for locomotion outside of the default joystick movement.
+* Kinda-new sub-packages; from a build between V1.2.0 and V2.0.0 that needs to be re-vamped:
+    * `CustomDialogue` - sub-package to allow for dialogue systems in VR
+* `CustomHand` component now altered to `EVRA_Hand` + grabbing functionality moved to `EVRA_Grab`.
+
+### _"EVRA\_Grab"_ Changes:
+
+* __Summary:__
+    * Input Events added: public functions from other scripts and components can be invoked by particular button inputs and manually added via Inspector for easy use.
+    * Streamlined code process for grabbing objects, simplifying code.
+    * Added dual-hand grabbing functionality
+* __Updates:__
+    * The grabbing functionality, originally stored within the `CustomHand` component from V1.2.0, has been moved into a separate subpackage `EVRA_Grab`.
+    * Event Handling allows for public functions from separate scripts/components to be invoked via inputs from the hand's respective controller.
+        * The inspector allows for easy drag-and-drop manipulation of events attached to each button press and release.
+    * Streamline Code Process:
+        * Older components `ExternalCollider` and `HoverCursor` now deprecated.
+        * Objects that the player should be able to grab needs the following scripts:
+            * `EVRA_Grabbable` - attach to the object itself
+            * `EVRA_GrabTrigger` - attach to empty children inside of the object, attach a `Collider` to them
+        * `EVRA_Grabber` will detect for the closest `GrabTrigger`, `GrabTrigger` will inform `EVRA_Grabber` about the parent `EVRA_Grabbable` component, `EVRA_Grabber` performs the necessary functions to make the object move around with the hand.
+    * Dual-Hand Grabbing:
+        * When a user grabs an object, it will move around with the hand that grabbed it, like normal. When a second `EVRA_Grabber` attempts to grab the object at a different trigger point, then the object can be rotated while still being grabbed by the first grabber, meaning objects can be rotated while simultaneously being grabbed by two objects.
+        * When a user grabs an already-held object at the same trigger point, then the parenting will be switched over to the new grabber.
+        * When a user is holding an object with Grabbers A (first grabber) and B (second grabber) and A lets go, then B becomes the new primary grabber.
+        * When a user is holding an object with Grabbers A (first grabber) and b (second grabber) and B lets go, then the orientation of the object is maintained.
+
+
+
+---
 
 ## Version 1.2.0
 

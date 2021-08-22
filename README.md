@@ -36,14 +36,45 @@ To install the __"EasierVRAssets"__ package, simply clone this repo into your lo
 The contents of the __"EasierVRAssets"__ consist of the following:
 
 * _EasierVRAssets/_
-    * _README.md_ - this file
-    * _ChangeLog.md_ - Contains the list of changes made to this package
-    * _CustomGrab/_
-        * _README.md_ – A summary of the CustomGrab subpackage
-        * _Materials/_ – The materials utilized by this package
-        * _Prefabs/_ – prefabs created for easier usage in Unity
-        * _SampleScenes/_ – samples of scenes that showcase example uses of the scripts and prefabs in this subpackage
-        * _Scripts/_ – the collection of scripts used in this subpackage
+    * _README.md_: this file.
+    * _ChangeLog.md_: Contains the list of changes made to this package.
+    * _EVRA\_CoreElements_: All scripts, prefabs, and materials needed to run a bare-bones VR implementation.
+    * _EVRA\_Grab/_: Sub-package for needed to allow for grabbing objects with hands.
+        * _README.md_: A summary of the EVRA_Grab sub-package.
+        * _Materials/_: The materials used by this sub-package.
+        * _Prefabs/_: Prefabs created as either examples or convenient usage in Unity.
+        * _Scripts/_: Scripts used in this sub-package.
+        * _Deprecated/_: All deprecated scripts, prefabs, materials, and scenes that came with previous versions of this sub-package.
+    * _EVRA\_Pointer_: Sub-package needed to allow for line pointers. Can be used with other sub-packages (ex. distance grabbing, locomotion).
+        * _README.md_: A summary for the EVRA_Pointer sub-package
+        * _Materials/_: The materials used by this sub-package
+        * _Prefabs/_: Prefabs created as either examples or convenient usage in Unity.
+        * _Scripts/_: Scripts used in this sub-package.
+    * _EVRA\_Locomotion_: Sub-package needed to allow for locomotion outside of the default joystick movement.
+        * _README.md_: A summary for the EVRA_Locomotion sub-package
+        * _Materials/_: The materials used by this sub-package.
+        * _Prefabs/_: Prefabs created as either examples or convenient usage in Unity.
+        * _Scripts/_: Scripts used in this sub-package.
+        * _Deprecated/_: All deprecated scripts, prefabs, materials, and scenes that came with previous versions of this sub-package.
+    * _SampleScenes/_: Sample Unity scenes as examples of how to use the EasierVRAssets package.
+
+---
+
+## Layers and Physics !IMPORTANT
+
+This sub-package relies on the use of layers and physics to enable unique interactions with the EasierVRAssets components.
+
+In order to enable this to work, you must add perform the following:
+1. Add a new "EasierVRAssets" layer via the Inspector:
+    1. Click on any object currently in the scene's hierarchy.
+    2. On the top-right, click the "Layer" dropdown.
+    3. Select "Add Layer..."
+    4. Add a new layer named "EasierVRAssets".
+2. Modify Collision Physics via the project's Collision Matrix:
+    1. Edit --> Project Settings --> Physics
+    2. Disable all collision with the "EasierVRAssets" layer except for itself. In other words, let objects on the "EasierVRAssets" layer collide only with other objects on the "EasierVRAssets" layer.
+
+---
 
 For more information on how to utilize these subpackages, please read their respective README.md files. Each subpackage in this repo contains a README file that explains the nuances of each subpackage, including how they work and what public variables are most important when integrating these packages and prefabs into your own project.
 
