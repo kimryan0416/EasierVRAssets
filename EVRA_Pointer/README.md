@@ -7,16 +7,19 @@ This package is intended to allow developers to use pointer functionality with O
 The following details are mentioned here:
 1. What the Package Comes With
     * Dependencies
-2. Mechanics
+2. Script API
+    * EVRA_Pointer.cs
+        * Public Variables
+        * Serialized Variables in Inspector
+        * Public Methods
+3. Mechanics
     * Usage with OVRPlayerController
     * Layers and Physics !IMPORTANT
-    * Variables in Inspector
-        * EVRA_Pointer
     * Setting up a pointer with EVRA_Hand
     * Setting up a pointer with EVRA_Grabber
     * Setting up a pointer with EVRA_Locomotion
-3. Event Logic
-6. ChangeLog
+4. Event Logic
+5. ChangeLog
 
 ---
 
@@ -33,6 +36,47 @@ This package comes with the following (The __bolded__ ones require your upmost a
 ### Dependencies
 This package requires the following packages or dependencies in order to work:
 * Oculus Implementations
+
+---
+
+## Script API
+
+**NOTE:** The `EVRA_Pointer` prefab has the `EVRA_Pointer.cs` script automatically attached.
+
+### EVRA_Pointer.cs:
+
+#### Public Variables
+|Variable|Type|Description|
+|:-|:-|:-|
+|`LR`|`LineRenderer`|Referene to the Line Renderer used for the pointer.|
+|`forwardRaycastTarget`|`Transform`|The transform that the forward-facing raycast hit. If no raycast hit, will return `null`.|
+|`forwardRaycastHitPosition`|`Vector3`|The current position of the forward-facing raycast hit. If no raycast hit, will return `Vector3.zero`.|
+|`downwardRaycastTarget`|`Transform`|The transform that the downward-facing raycast (starting from the end of the forward-facing raycast) hit. If no raycast hit, will return `null`.|
+|`downwardRaycastHitPosition`|`Vector3`|The current position of the downward-facing raycast hit. If no raycast hit, will return `Vector3.zero`.|
+|`raycastTarget`|`Transform`|Depending on the `Line Type`, will return `downwardRaycastTarget` for `Bezier Curve` lines and `forwardRaycastTarget` for `Straight` lines.|
+|`raycastHitPosition`|`Vector3`|Depending on the `Line Type`, will return `downwardRaycastHitPosition` for `Bezier Curve` lines and `forwardRaycastHitPosition` for `Straight` lines.|
+|`alwaysShow`|`bool`|Returns whether the line will always appear when the pointer is activated or only when the pointer detects a raycast hit.|
+|`defaultColor`|`Color`|The default color that the line should appear with. Only relevant if a `Material` is used to render the line's color in the `Line Renderer`'s settings in Inspector.|
+|`hitColor`|`Color`|The color that the line should appear with if a raycast target is detected. Only relevant if a `Material` is used to render the line's color in the `Line Renderer`'s settings in Inspector.|
+
+#### Serialized Variables in Inspector
+|Variable|Type|Description|
+|:-|:-|:-|
+|`Line Type`|`LineType`|Determines what kind of line the pointer should produce. Either "Straight" or "Bezier Curve"|
+|`Distance`|`float`|How far forward the pointer can reach out.|
+|`Num Positions`|`int`|How many points will be used to render the line. At least *2* is needed for a straight line, whereas a Bezier Curve needs at least *3*. The more points used, the smoother the Bezier Curve will be.|
+|`Always Show`|`bool`|Determines if the line that depicts the pointer will show up whenever the Pointer is activated or only if the pointer hits an object.|
+|`Default Color`|`Color`|The line's color by default.|
+|`Hit Color`|`Color`|The line's color when the pointer hits an object.|
+|`Collision Type`|`CollisionType`|Should the Pointer detect all objects regardless of layer, all objects except for those on the "EasierVRAssets" layer, or only objects with the "EasierVRAssets" layer?|
+
+#### Public Methods
+|Variable|Return Type|Description|
+|:-|:-|:-|
+|`Activate()`|`void`|Turns on the `LineRenderer` component.|
+|`Deactivate()`|`void`|Turns off the `LineRenderer` component.|
+|`TrulyActivate()`|`void`|Allows the pointer to function with `Activate()` and `Deactivate()`.|
+|`TrulyDeactivate`|`void`|Disables the pointer so that the `LineRenderer` is set to inactive, `Activate()` and `Deactivate()` have no effect, and the points used for the `LineRenderer` are set to produce no line at all.|
 
 ---
 
@@ -75,23 +119,6 @@ In order to enable this to work, you must add perform the following:
 2. Modify Collision Physics via the project's Collision Matrix:
     1. Edit --> Project Settings --> Physics
     2. Disable all collision with the "EasierVRAssets" layer except for itself. In other words, let objects on the "EasierVRAssets" layer collide only with other objects on the "EasierVRAssets" layer.
-
-### Variables in Inspector
-
-**NOTE:** The `EVRA_Pointer` prefab has the `EVRA_Pointer.cs` script automatically attached.
-
-When viewing the following scripts inside of the Inspector, you will see the following variables:
-
-#### EVRA_Pointer.cs:
-|Variable|Type|Description|
-|:-|:-|:-|
-|`Line Type`|`LineType`|Determines what kind of line the pointer should produce. Either "Straight" or "Bezier Curve"|
-|`Distance`|`float`|How far forward the pointer can reach out.|
-|`Num Positions`|`int`|How many points will be used to render the line. At least *2* is needed for a straight line, whereas a Bezier Curve needs at least *3*. The more points used, the smoother the Bezier Curve will be.|
-|`Always Show`|`bool`|Determines if the line that depicts the pointer will show up whenever the Pointer is activated or only if the pointer hits an object.|
-|`Default Color`|`Color`|The line's color by default.|
-|`Hit Color`|`Color`|The line's color when the pointer hits an object.|
-|`Collision Type`|`CollisionType`|Should the Pointer detect all objects regardless of layer, all objects except for those on the "EasierVRAssets" layer, or only objects with the "EasierVRAssets" layer?|
 
 ### Setting up a pointer with EVRA_Hand
 

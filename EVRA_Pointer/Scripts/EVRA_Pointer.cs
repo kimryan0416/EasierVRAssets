@@ -18,13 +18,6 @@ public class EVRA_Pointer: MonoBehaviour
         set {}
     }
 
-    [Tooltip("The forward raycast's target")] // NOT SERIALIZED
-    private GameObject m_forwardTarget = null;
-    public GameObject forwardTarget {
-        get {   return m_forwardTarget; }
-        set {}
-    }
-
     public enum LineType {
         Straight,
         BezierCurve,
@@ -67,14 +60,15 @@ public class EVRA_Pointer: MonoBehaviour
         get {   return (m_lineType == LineType.BezierCurve) ? m_downwardRaycastTarget : m_forwardRaycastTarget; }
         set {}
     }
-
-    
-    [SerializeField] [Tooltip("TRUE = the line will appear regardless if a target is hit; FALSE = the line will ONLY appear if a target is hit")]
-    private bool m_alwaysShow = true;
-    public bool alwaysShow {
-        get {   return m_alwaysShow;    }
+    // The raycast hit position, which would depend on whether the line is straight or bezier curved
+    public Vector3 raycastHitPosition {
+        get {   return (m_lineType == LineType.BezierCurve) ? m_downwardRaycastHitPosition : m_forwardRaycastHitPosition; }
         set {}
     }
+
+    
+    [Tooltip("TRUE = the line will appear regardless if a target is hit; FALSE = the line will ONLY appear if a target is hit")]
+    public bool m_alwaysShow = true;
 
     [Tooltip("Color of the default line")]
     public Color defaultColor = Color.yellow;
@@ -99,7 +93,7 @@ public class EVRA_Pointer: MonoBehaviour
     private void Awake() {
         if (!gameObject.GetComponent<LineRenderer>()) {
             m_LR = gameObject.AddComponent<LineRenderer>();
-            m_LR.SetWidth(0.02f);
+            m_LR.SetWidth(0.02f, 0.02f);
         } else {
             m_LR = gameObject.GetComponent<LineRenderer>();
         }

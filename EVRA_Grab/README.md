@@ -52,8 +52,6 @@ This package requires the following packages or dependencies in order to work:
 
 **NOTE:** The `EVRA_Grabber` prefab has the `EVRA_Grabber.cs` script automatically attached.
 
-When viewing the following scripts inside of the Inspector, you will see the following variables:
-
 ### EVRA_Grabber.cs:
 
 #### Public Variables
