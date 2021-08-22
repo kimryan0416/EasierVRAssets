@@ -10,14 +10,20 @@ The following details are mentioned here:
 2. Mechanics
     * Usage with OVRPlayerController
     * Layers and Physics !IMPORTANT
-    * Variables in Inspector
+    * Script API
         * EVRA_Grabber
+            * Public Variables
+            * Serialized Variables in Inspector
+            * Public Methods
         * EVRA_Grabbable
+            * Public Variables
+            * Serialized Variables in Inspector
+            * Public Methods
         * EVRA_GrabTrigger
     * Setting up a Grabbabe Object
     * Setting up a Grabber
 3. Event Logic
-6. ChangeLog
+4. ChangeLog
 
 ---
 
@@ -81,30 +87,63 @@ In order to enable this to work, you must add perform the following:
     1. Edit --> Project Settings --> Physics
     2. Disable all collision with the "EasierVRAssets" layer except for itself. In other words, let objects on the "EasierVRAssets" layer collide only with other objects on the "EasierVRAssets" layer.
 
-### Variables in Inspector
+### Script API
 
 **NOTE:** The `EVRA_Grabber` prefab has the `EVRA_Grabber.cs` script automatically attached.
 
 When viewing the following scripts inside of the Inspector, you will see the following variables:
 
 #### EVRA_Grabber.cs:
+##### Public Variables
+|Variable|Type|Description|
+|:-|:-|:-|
+|`OtherGrabVolume`|`EVRA_Grabber`|Reference to the other `EVRA_Grabber` when holding a grabbable object with both grabbers. is `null` otherwise.|
+|`inRange`|`List<EVRA_GrabTrigger>`|List of all `EVRA_GrabTrigger` objects that triggered collision with this object's own collider. Does not include any raycast targets from `EVRA_Pointer`, if set up with a pointer.|
+|`grabbed`|`EVRA_GrabTrigger`|Reference to the `EVRA_GrabTrigger` that this grabber is currently holding onto. Is `null` when not grabbing anything.|
+##### Serialized Variables in Inspector
 |Variable|Type|Description|
 |:-|:-|:-|
 |`Custom Grabber`|`EVRA_Hand`|Reference to a parent `EVRA_Hand` object.|
 |`Pointer`|`EVRA_Pointer`|Reference to an `EVRA_Pointer` object, if wanting to use distance grabbing|
 |`Collision Origin`|`Transform`|Reference to a `Transform` that will be the center point for the grabbing. If not set, then the object itself will be used as the `Collision Origin`|
 |`GrabType`|`GrabType`|Depending on the setting, the grab mechanism will either be local to the `Collision Origin's` Box Collider, to targets at a distance (via using `EVRA_Pointer`), or both.|
+###### Public Methods
+|Method|Return Type|Description|
+|:-|:-|:-|
+|`GrabBegin()`|`void`|Initializes the grabbing mechanism.|
+|`GrabEnd()`|`void`|Stops the grabbing mechanism.|
+|`AddOtherGrabVolume()`|`void`|Called from one `EVRA_Grabber` to another when two hands begin to hold the same grabbable object. Lets the other grabber know which other grabber is also holding onto the object.|
+|`ReoveOtherGrabVolume()`|`void`|Called from one `EVRA_Grabber` to another when one hand lets go of a grabbable object originally held by two hands. Removes the reference to the other grabber.|
 
 #### EVRA_Grabbable.cs:
+##### Public Variables
 |Variables|Type|Description|
 |:-|:-|:-|
-|`Current Grabber`|`EVRA_Grabber`|The hand acting as the primary grabber of the object.|
+|`currentGrabber`|`EVRA_Grabber`|Who is the primary grabber holding this object? ("Primary grabber" == who's maintaining hold over this object and the object is rotating around if two grabbers are holding it?)|
+##### Serialized Variables in Inspector
+|Variables|Type|Description|
+|:-|:-|:-|
+|`Current Grabber`|`EVRA_Grabber`|Who is the primary grabber holding this object? ("Primary grabber" == who's maintaining hold over this object and the object is rotating around if two grabbers are holding it?)|
 |`GrabbableParent`|`Transform`|The object that is meant to be grabbed - needed if the object that has this script is a child of the object and not the actual grabbable object. If not set, it will set to the object itself.|
 |`Triggers`|`List<EVRA_GrabTrigger>`|The list of triggers associated with the grabbable object. All grabbable objects need at least one `EVRA_GrabTrigger` associated with it, whether that be the grabbable object itself or a child.|
 |`Should Snap`|`bool`|Should this object snap to match the forward direction of the hand?|
+##### Public Methods
+|Variables|Return Type|Description|
+|:-|:-|:-|
+|`GrabBegin(EVRA_Grabber, EVRA_GrabTrigger)`|`void`|Called by a new primary `EVRA_Grabber` when an object is gripped. Notifies the object about which grabber is holding it and from which trigger.|
+|`GrabEnd(Vector3, Vector3)`|`void`|Called by the primary `EVRA_Grabber` when an object is let go. Applies linear velocity and angular velocity of the hand to the object to simulate realistic throwing.|
+|`GrabEnd()`|`void`|Similar to `GrabEnd(Vector3, Vector3)` except without any linear or angular velocity applied.|
+|`SwitchHand(EVRA_Grabber)`|`void`|Called when primary ownership is switched from one `EVRA_Grabber` to another. Modifies the parenting of the object.|
 
 #### EVRA_GrabTrigger.cs:
-(No public variables)
+##### Public Variables
+|Variables|Type|Description|
+|:-|:-|:-|
+|`GrabbableRef`|`EVRA_Grabbable`|Reference to the parent `EVRA_Grabbable` that this trigger is associated with.|
+##### Public Methods
+|Variables|Return Type|Description|
+|:-|:-|:-|
+|`Init(EVRA_Grabbable)`|`void`|Called when an `EVRA_Grabbble` parent wants to set itself as `GrabbableRef`.|
 
 ### Setting up a Grabbabe Object
 
