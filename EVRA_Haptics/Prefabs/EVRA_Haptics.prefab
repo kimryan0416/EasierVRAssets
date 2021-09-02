@@ -52,7 +52,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: -0.0000012721866
-      value: 1.0000069
+      value: 0.80083776
       inSlope: -0.01488952
       outSlope: -0.01488952
       tangentMode: 0
@@ -60,8 +60,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0.31772736
     - serializedVersion: 3
-      time: 0.5002812
-      value: 0.00479299
+      time: 0.19998825
+      value: 0.0059526563
       inSlope: -0.0062451945
       outSlope: -0.0062451945
       tangentMode: 0
@@ -76,7 +76,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0.00000017881393
-      value: 1.0000104
+      value: 0.7996472
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -84,7 +84,7 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.500207
+      time: 0.199853
       value: -0.0000016540289
       inSlope: -0.000018665061
       outSlope: -0.000018665061
@@ -95,6 +95,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  radius: 1
+  radius: 0.2
   m_StrengthOfHapticsBy: 0
   ignoreColliders: []

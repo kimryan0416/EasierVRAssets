@@ -20,7 +20,7 @@ public class EVRA_Haptics : MonoBehaviour
     public AnimationCurve amplitudeCurve;
 
     [Tooltip("Radius of object detection")]
-    public float radius = 0.3f;
+    public float radius = 0.2f;
 
     public enum HapticsPreference {
         Closest,
@@ -47,7 +47,9 @@ public class EVRA_Haptics : MonoBehaviour
     private void Update() {
         FindSurroundingObjects();
         if (inRange.Count == 0) {
-            SetHaptics();
+            frequency = 0f;
+            amplitude = 0f;
+            SetHaptics(frequency, amplitude);
             return;
         }
         switch(m_StrengthOfHapticsBy) {
@@ -75,43 +77,67 @@ public class EVRA_Haptics : MonoBehaviour
     }
 
     private void HapticsByClosest() {
-        Transform closest = inRange[0].transform;
-        float distance = Vector3.Distance(m_Hand.transform.position, closest.position);
-        Transform temp;
+        //Transform closest = inRange[0].transform;
+        float distance = Vector3.Distance(m_Hand.transform.position, inRange[0].transform.position);
+        //Transform temp;
+        Collider temp;
         float tempDistance;
+        Vector3 closestPointInBounds;
         RaycastHit hit;
         for(int i = 1; i < inRange.Count; i++) {
+            /*
             temp = inRange[i].transform;
             tempDistance = Vector3.Distance(m_Hand.transform.position, temp.position);
             if (Physics.Raycast(transform.position, temp.position.normalized, out hit, Mathf.Infinity)) {
                 tempDistance = Vector3.Distance(m_Hand.transform.position, hit.point);
             }
+            */
+            temp = inRange[i];
+            closestPointInBounds = temp.ClosestPointOnBounds(m_Hand.transform.position);
+            tempDistance = Vector3.Distance(m_Hand.transform.position, closestPointInBounds);
             if (tempDistance < distance) {
                 distance = tempDistance;
-                closest = temp;
+                //closest = temp;
             }
         }
-        SetHaptics(frequencyCurve.Evaluate(distance), amplitudeCurve.Evaluate(distance));
+        frequency = frequencyCurve.Evaluate(distance);
+        amplitude = amplitudeCurve.Evaluate(distance);
+        SetHaptics(frequency, amplitude);
     }
     private void HapticsByAverageDistance() {
         float totalDistance = 0f;
-        Transform temp;
+        //Transform temp;
+        Collider temp;
         float tempDistance;
+        Vector3 closestPointInBounds;
         RaycastHit hit;
         for(int i = 0; i < inRange.Count; i++) {
+            /*
             temp = inRange[i].transform;
             tempDistance = Vector3.Distance(m_Hand.transform.position, temp.position);
             if (Physics.Raycast(transform.position, temp.position.normalized, out hit, Mathf.Infinity)) {
                 tempDistance = Vector3.Distance(m_Hand.transform.position, hit.point);
             }
+            */
+            temp = inRange[i];
+            closestPointInBounds = temp.ClosestPointOnBounds(m_Hand.transform.position);
+            tempDistance = Vector3.Distance(m_Hand.transform.position, closestPointInBounds);
             totalDistance += tempDistance;
         }
         float avgDistance = totalDistance / inRange.Count;
-        SetHaptics(frequencyCurve.Evaluate(avgDistance), amplitudeCurve.Evaluate(avgDistance));
+        frequency = frequencyCurve.Evaluate(avgDistance);
+        amplitude = amplitudeCurve.Evaluate(avgDistance);
+        SetHaptics(frequency, amplitude);
     }
     private void HapticsByConstant() {
-        if (inRange.Count > 0) SetHaptics(frequencyCurve.Evaluate(0f), amplitudeCurve.Evaluate(0f));
-        else SetHaptics();
+        if (inRange.Count > 0) {
+            frequency = frequencyCurve.Evaluate(0f);
+            amplitude =  amplitudeCurve.Evaluate(0f);
+        } else {
+            frequency = 0f;
+            amplitude = 0f;
+        }
+        SetHaptics(frequency, amplitude);
     }
 
     public void SetHaptics(float freq = 0f, float amp = 0f) {
