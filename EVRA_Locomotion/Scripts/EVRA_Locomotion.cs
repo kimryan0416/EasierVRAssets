@@ -32,6 +32,9 @@ public class EVRA_Locomotion : MonoBehaviour
         set {}
     }
 
+    [SerializeField] [Tooltip("Reference to the EVRA_Hand that will be controlling the locomotion")]
+    private EVRA_Hand m_Hand = null;
+
     [SerializeField] [Tooltip("Reference to the pointer we'll be using as our destination pointer")]
     private EVRA_Pointer m_Pointer;
 
@@ -133,6 +136,18 @@ public class EVRA_Locomotion : MonoBehaviour
     [Tooltip("Saved memory of the initial conditions for movement with the OVRPlayerController")]
     private bool m_linMov, m_rotMov;
 
+    [Tooltip("The max speed of the player, if locomoting via translation, in MPS")]
+    public float maxSpeed = 0.75f;
+
+    [Tooltip("The modifier that determines how much of the max speed the player should move. 0f = stop, 1f = full speed")] // NOT SERIALIZED
+    private float speedModifier = 1f;
+
+    [Tooltip("Reference to the trigger that is activating the locomotion, if locomoting via translation")]
+    private string m_translationInputName = null;
+
+    [Tooltip("Used as a check for if the player is locomoting using translation.")] // NOT SERIALIZED
+    private bool m_isTranslating = false;
+
     #endregion
     /* ------------
     - When the user pressed DOWN on the trigger, locomotion is PREPARING. During this prep period, a cursor is meant to appear. There can only be one cursor in the world, which is what we store in `m_instantiatedCursor`.
@@ -170,7 +185,41 @@ public class EVRA_Locomotion : MonoBehaviour
         if (m_Pointer == null) return;
 
         // Update doesn't run if we're currently not finding a location to teleport to.
-        if (!m_isPreparing || m_isTeleporting) return;
+        if (!m_isPreparing) return;
+        if (m_isTeleporting) {
+            if (m_isTranslating) {
+                Vector3 direction = -m_Pointer.transform.forward;
+                if (m_Hand != null && m_translationInputName != null) {
+                    switch(m_translationInputName) {
+                        case "index":
+                            speedModifier = m_Hand.IndexTriggerValue;
+                            break;
+                        case "grip":
+                            speedModifier = m_Hand.GripTriggerValue;
+                            break;
+                        case "thumbstickPress":
+                            speedModifier = (m_Hand.ThumbstickPress) ? 1f : 0f;
+                            break;
+                        case "one":
+                            speedModifier = (m_Hand.ButtonOneValue) ? 1f : 0f;
+                            break;
+                        case "two":
+                            speedModifier = (m_Hand.ButtonTwoValue) ? 1f : 0f;
+                            break;
+                        case "start":
+                            speedModifier = (m_Hand.StartButtonValue) ? 1f : 0f;
+                            break;
+                        default:
+                            speedModifier = 1f;
+                            break;
+                    }
+                }
+                else speedModifier = 1f;
+                float timePassed = Time.deltaTime;
+                TranslateTeleport(direction, maxSpeed * speedModifier, timePassed);
+            }
+            return;
+        }
         
         // We grab both the targeted Transform alongside the specific point where our raycast is pointing to.
         // No concern needs to be held for whether our line is straight or a Bezier curve downwards; the pointer accounts for that by giving us the appropriate target regardless of the line type
@@ -295,6 +344,22 @@ public class EVRA_Locomotion : MonoBehaviour
         }
     }
     */
+
+    public void StartTranslate(string inputKey = null) {
+        m_isPreparing = true;
+        m_isTeleporting = true;
+        m_isTranslating = true;
+        m_translationInputName = inputKey;
+    }
+    public void EndTranslate() {
+        m_isPreparing = false;
+        m_isTeleporting = false;
+        m_isTranslating = false;
+        m_translationInputName = null;
+    }
+    public void TranslateTeleport(Vector3 forward, float speed, float deltaTime) {
+        m_charTransform.position = m_charTransform.position + forward * speed * deltaTime;
+    }
 
 
     public void Instant() {

@@ -46,6 +46,7 @@ MonoBehaviour:
   m_characterController: {fileID: 0}
   m_playerController: {fileID: 0}
   m_screenFader: {fileID: 0}
+  m_Hand: {fileID: 0}
   m_Pointer: {fileID: 0}
   m_locomotionCursor: {fileID: 0}
   m_checkHeight: 1
@@ -87,3 +88,4 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  maxSpeed: 0.75

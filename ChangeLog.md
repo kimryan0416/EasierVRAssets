@@ -1,8 +1,14 @@
-# EasierVRAssets - Change Log (Most Recent: V2.0.0)
+# EasierVRAssets - Change Log (Most Recent: V2.1.0)
+
+## Version 2.1.0
+
+### Major Updates:
+
+* A new `Translate` method of locomotion has been added to `EVRA_Locomotion.cs`.
 
 ## Version 2.0.0
 
-### Major updates:
+### Major Updates:
 
 * `CustomGrab` sub-package renamed to `EVRA_Grab`.
 * New sub-packages; pulled out of `EVRA_Grab` and placed into their own sub-packages, to better componentize the functions of EasierVRAssets:
