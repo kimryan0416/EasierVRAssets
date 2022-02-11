@@ -1,4 +1,4 @@
-# EasierVRAssets
+# EasierVRAssets (Latest: V2.1.1 Unofficial, Stable: V2.0.0)
 
 Hello. My name is Ryan, and this is a guide for the __"EasierVRAssets"__ package. As the developer of this package, I feel that it is strongly within my responsibility to explain what this package is and how to use it.
 
@@ -6,28 +6,66 @@ The __"EasierVRAssets"__ package is a set of scripts and prefabs intended to mak
 
 In order to get this package working, you need to do several things prior:
 1. Make sure that on whatever version of Unity you are working with, that you have the Android DevTools installed in Unity.
-2. You must have the “Oculus Implementations” installed in your Unity project. The Oculus package is still required, as many scripts in __"EasierVRAssets"__ still utilize aspects of the code from the __"Oculus Implementations"__ package.
+2. You must have the “Oculus Integragion” installed in your Unity project. This Oculus package is still required, as many scripts in __"EasierVRAssets"__ still utilize aspects of the OVR scripts from the __"Oculus Integration"__ package.
 
-__"EasierVRAssets"__ does not rely on Unity's new XR systems. However, the __"Oculus Implementations"__ package has been slated to be removed from Unity support. For developers who wish to migrate to Unity XR's new system, I have a Github repository that offers tools and tips on how to develop VR apps with the new Unity XR system [here](https://github.com/kimryan0416/EasierXRAssets).
+__"EasierVRAssets"__ does not rely on Unity's new XR systems. For developers who wish to migrate to Unity XR's new system, I have a Github repository that offers tools and tips on how to develop VR apps with the new Unity XR system [here](https://github.com/kimryan0416/EasierXRAssets).
 
 ## Setting up your Unity Project
 
-In order to get this project to work, you must install the __"Oculus Implementations"__ first, then adjust the settings of your Unity project to output properly for the Oculus.
+**Topics:**
+* Simplified Oculus Integration Setup
+    * Setting Up Android Environment
+    * Importing Oculus Integration
+    * Setting Up Oculus Integration
+* Setting Up EasierVRAssets
 
-To install the __"Oculus Implementations"__ package, just follow these instructions:
+In order to get this project to work, you must install the __"Oculus Integration"__ first, then adjust the settings of your Unity project to output properly for the Oculus. To install the __"Oculus Integration"__ package, I highly recommend that you refer to existing guides on how to do so. The guides that tend to work best on a fresh install of Unity are listed below. I'll also highlight the most important steps that worked for me with a fresh install of Unity.
 
-1. Navigate to the Unity Asset Store in Unity
-2. Search for _"Oculus"_ – you will most likely see the __"Oculus Implementations"__ package as the first item that appears.
-3. Click `Import` – it will take some time to install into your Unity project.
+* [Dilmer Valecillos's overall guide to Unity documentation](https://www.youtube.com/watch?v=YwFXQeBmxZ4)
+* [Oculus's documentation on Unity implementations](https://developer.oculus.com/documentation/unity/unity-gs-overview/)
 
-You must also ensure that the settings behind Unity are optimized for use of the Oculus scripts.
-1. Open your Build Settings (`File` > `Build Settings`), and then ensure that you are outputting your projects for Android (`Platform` > `Android`).
-2. Open "Player Settings" and navigate to "Player" (`Player Settings` > `Player`)
-3. Inside "XR Settings", in "Virtual Reality SDKs", click the `+` button and add the "Oculus" package if you haven’t already.
-3. Inside "Other Settings", do the following:
-    1. Delete `Vulkan` from "Graphic APIs" – this is no longer needed
-    1. Set "Minimum API Level" to `Android 4.4 "Kitkat"`
-4. Still within "Player Settings", navigate to "Time" on the left side. Then, set the "Fixed Timestep" value to `1/90` or `0.01111` – this speeds up your game by a significant amount
+### Simplified Oculus Integration Setup
+
+#### Setting Up Android Environment
+1. Open Project in Unity
+2. `File` --> `Build Settings`
+3. On `Platform`, select `Android`
+4. Click `Switch Platform`
+5. Close the `Build Settings` window - it will be needed later, but not immediately
+
+#### Importing Oculus Integration
+1. Click `Asset Store` tab in the main editor panel
+2. Click `Search Online`
+3. Search for "Oculus" in the search bar
+4. Select "Oculus Integration" from the search results
+5. Either download (if it's your first time) or `Open in Unity` (if you already installed the integrations package before)
+6. `Window` --> `Package Manager`
+7. Select `Oculus Integration`, import the package. Make sure to update it, if possible. 
+    * NOTE: BE CAREFUL ABOUT IF YOU'RE UPDATING WITH A PRE-EXISTING PROJECT WHEN UPDATING.
+8. In the new window that pops up, make sure to import everything into your project.
+
+#### Setting Up Oculus Integration
+1. `File` --> `Build Settings`
+2. `Player Settings` (in the bottom-left corner)
+3. (Optional) In the top-right, modify the "Company Name", "Product Name", and "Version"
+4. `Other Settings` tab
+5. `Minimum API Level` - set to `Android 6.0 Marshmallow`
+6. `Target API Level` - set to `Automatic (highest installed)`
+7. `Install Location` - set to `Automatic`
+
+8. On the left, `XR Plug-in Management`
+9. (If you haven't already) `Install XR Plug-in Management`
+10. On the "Android" tab (right tab), select `Oculus`
+11. On the left, click the new dropdown under `XR Plug-in Management`
+12. Select `Oculus`
+
+13. On the left, `Player`
+14. `Other Settings` tab
+15. `Color Space` - change from `Gamma` to `Linear`
+16. `Graphics API` - Remove `Vulkan`, set `OpenGLES 3` as the topmost API
+17. `Multithreaded Rendering` - checkmark it
+
+### Setting Up EasierVRAssets 
 
 To install the __"EasierVRAssets"__ package, simply clone this repo into your local computer, and then add the package to your Unity Project. Unity should automatically import all scripts and assets onto the computer from here.
 

@@ -1,5 +1,14 @@
 # EasierVRAssets - Change Log (Most Recent: V2.1.0)
 
+## Version 2.1.1
+
+### Major Updates
+
+* Slow start to updating to the "Oculus Integration" packaged, whose latest release was in February 2022.
+* Small adjustments to `EVRA_GrabTrigger.cs` where:
+    * The GameObject's `layer` is auto-set to `EasierVRAssets`, as an automated process upon `Awake()`.
+    * A `Collider` component is now a required element, with `Awake()` auto-setting the Collider's `trigger` setting to `true`.
+
 ## Version 2.1.0
 
 ### Major Updates:
