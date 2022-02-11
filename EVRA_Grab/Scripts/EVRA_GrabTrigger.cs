@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider))]
 public class EVRA_GrabTrigger : MonoBehaviour
 {
     #region Grabbable Refs
@@ -13,6 +14,15 @@ public class EVRA_GrabTrigger : MonoBehaviour
         }
     #endregion
 
+    private void Awake() {
+        if (TryGetComponent(out Collider col)) {
+            col.isTrigger = true;
+        } else {
+            Collider col = gameObject.GetComponent<Collider>();
+            col.isTrigger = true;
+        }
+    }
+    
     // All we need to do is ensure that, when this triggers the grabber, we can tell it that "You gotta look at THIS guy".
     public void Init(EVRA_Grabbable parent) {
         m_GrabbableRef = parent;
