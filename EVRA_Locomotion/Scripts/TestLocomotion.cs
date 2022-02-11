@@ -265,7 +265,8 @@ public class TestLocomotion : MonoBehaviour
                 m_characterController.enabled = true;
             }
             float fadeLevel = FadeLevels.Evaluate(elapsedTime / transitionTime);
-            m_screenFader.SetFadeLevel(fadeLevel);
+            // m_screenFader.SetFadeLevel(fadeLevel);
+            m_screenFader.SetExplicitFade(fadeLevel);
         } else {
             StopLocomotion();
         }
@@ -394,7 +395,8 @@ public class TestLocomotion : MonoBehaviour
     }
 
     public void StopLocomotion() {
-        m_screenFader.SetFadeLevel(0);
+        // m_screenFader.SetFadeLevel(0);
+        m_screenFader.SetExplicitFade(0);
         velocity = Vector3.zero;
         teleported = true;
         isTeleporting = false;

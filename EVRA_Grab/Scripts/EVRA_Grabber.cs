@@ -59,6 +59,8 @@ public class EVRA_Grabber : MonoBehaviour
     [Tooltip("Reference to the grab volume's original Color")] // NOT SERIALIZED
     private Color originalColor;
 
+    public GameObject DebugObject;
+
     private void Awake() {
         if (!m_collisionOrigin) m_collisionOrigin = this.transform;
         m_Renderer = m_collisionOrigin.GetComponent<Renderer>();
@@ -67,6 +69,9 @@ public class EVRA_Grabber : MonoBehaviour
     }
 
     private void Update() {
+        if (DebugObject != null) {
+            DebugObject.GetComponent<Renderer>().enabled = m_inRange.Count > 0;
+        }
 
         if (m_OtherGrabVolume) {
             /*

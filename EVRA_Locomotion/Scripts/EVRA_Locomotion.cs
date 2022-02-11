@@ -454,10 +454,12 @@ public class EVRA_Locomotion : MonoBehaviour
                 m_characterController.enabled = true;
 			}
 			float fadeLevel = FadeLevels.Evaluate(elapsedTime / timeToFade);
-			m_screenFader.SetFadeLevel(fadeLevel);
+			//m_screenFader.SetFadeLevel(fadeLevel);
+            m_screenFader.SetExplicitFade(fadeLevel);
 		}
 
-		m_screenFader.SetFadeLevel(0);
+		//m_screenFader.SetFadeLevel(0);
+        m_screenFader.SetExplicitFade(0);
         m_isTeleporting = false;
         yield return null;
     }
