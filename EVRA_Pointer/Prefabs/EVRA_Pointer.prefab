@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9215062164279347550}
   - component: {fileID: 9215062164279347549}
   m_Layer: 0
-  m_Name: CustomPointer_v2
+  m_Name: EVRA_Pointer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -147,3 +147,6 @@ MonoBehaviour:
   m_alwaysShow: 1
   defaultColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   hitColor: {r: 0, g: 0, b: 1, a: 1}
+  layersToDetect:
+    serializedVersion: 2
+    m_Bits: 1

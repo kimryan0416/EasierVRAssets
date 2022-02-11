@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+public enum PointerState {
+    Off,
+    Raycast_Only,
+    On
+}
+
 /* ------------
 - The purpose of this component is to control a pointer (aka a Line Renderer) that is used for various functions such as pointing, pinging, and locomotion.
 - In virtual reality, pointing is a common tool utilized in various user interfaces because it affords for (semi-)accurate selection and targeting. 
@@ -17,6 +23,9 @@ public class EVRA_Pointer: MonoBehaviour
         get {   return m_LR;  }
         set {}
     }
+
+    [Tooltip("Behavior of the pointer")]
+    public PointerState pointerState = PointerState.On;
 
     public enum LineType {
         Straight,
@@ -66,6 +75,13 @@ public class EVRA_Pointer: MonoBehaviour
         set {}
     }
 
+    [Tooltip("All the positions that formulate the line. Cannot be set outside of this script.")]
+    private List<Vector3> m_positions = new List<Vector3>();
+    public List<Vector3> positions {
+        get {   return m_positions; }
+        set {}
+    }
+
     
     [Tooltip("TRUE = the line will appear regardless if a target is hit; FALSE = the line will ONLY appear if a target is hit")]
     public bool m_alwaysShow = true;
@@ -76,13 +92,8 @@ public class EVRA_Pointer: MonoBehaviour
     [Tooltip("Color of the line when hitting a target")]
     public Color hitColor = Color.blue;
 
-    public enum CollisionType {
-        All,
-        Only_EasierVRAssets,
-        All_Except_EasierVRAssets
-    }
-    [SerializeField] [Tooltip("Should the pointer detect only EasierVRAssets objects?")]
-    private CollisionType m_collisionType = CollisionType.Only_EasierVRAssets;
+    [Tooltip("The layers that the pointer should specifically hit. To hit all objects regardless of layer, select 'Everything'")]
+    public LayerMask layersToDetect;
 
     [Tooltip("The layer mask that should be used for the raycasts")] // NOT SERIALIZED
     private int m_layerMask;
@@ -98,58 +109,54 @@ public class EVRA_Pointer: MonoBehaviour
             m_LR = gameObject.GetComponent<LineRenderer>();
         }
 
-        switch(m_collisionType) {
-            case (CollisionType.Only_EasierVRAssets):
-                if (LayerMask.NameToLayer("EasierVRAssets") != -1) m_layerMask = 1 << LayerMask.NameToLayer("EasierVRAssets");
-                else m_layerMask = -1;
-                break;
-            case (CollisionType.All_Except_EasierVRAssets):
-                if (LayerMask.NameToLayer("EasierVRAssets") != -1) {
-                    m_layerMask = 1 << LayerMask.NameToLayer("EasierVRAssets");
-                    m_layerMask = ~m_layerMask;
-                } else m_layerMask = -1;
-                break;
-            default:
-                m_layerMask = -1;
-                break;
-        }
-
         m_LR.useWorldSpace = true;
         m_LR.receiveShadows = false;
         if (numPositions < 2) numPositions = 2;
+
+        Debug.Log(pointerState);
+        if (pointerState == PointerState.Raycast_Only || pointerState == PointerState.Off) ClearLine();
     }
 
     private void Update() {
-        if (!m_trulyOn || !m_LR.enabled) return; // End early if the line isn't even enabled
+        //if (!m_trulyOn || !m_LR.enabled) return; // End early if the line isn't even enabled
+        if (!m_trulyOn || pointerState == PointerState.Off) return;
         Vector3 forwardPosition = FindForwardRaycast();
         Vector3 bottomPosition = FindBottomRaycast(forwardPosition);
-        List<Vector3> positions = new List<Vector3>();
+        m_positions = new List<Vector3>();
         
-        m_LR.positionCount = numPositions + 1;
-        if (m_lineType == LineType.BezierCurve) positions = BezierCurves.DetermineQuadraticCurve(numPositions, transform.position, forwardPosition, bottomPosition);
-        else positions = BezierCurves.DetermineLinearCurve(numPositions, transform.position, forwardPosition);
-        m_LR.SetPositions(positions.ToArray());
+        if (pointerState == PointerState.On) {
+            m_LR.positionCount = numPositions + 1;
+            if (m_lineType == LineType.BezierCurve) m_positions = BezierCurves.DetermineQuadraticCurve(numPositions, transform.position, forwardPosition, bottomPosition);
+            else m_positions = BezierCurves.DetermineLinearCurve(numPositions, transform.position, forwardPosition);
+            m_LR.SetPositions(m_positions.ToArray());
+            m_LR.enabled = true;
 
-        if (m_LR.materials.Length == 0) return;
+            if (m_LR.materials.Length == 0) return;
 
-        Color m = defaultColor;
-        if (m_lineType == LineType.BezierCurve) {
-            if (m_downwardRaycastTarget != null) m = hitColor;
+            Color m = defaultColor;
+            if (m_lineType == LineType.BezierCurve) {
+                if (m_downwardRaycastTarget != null) m = hitColor;
+            } else {
+                if (m_forwardRaycastTarget != null) m = hitColor;
+            }
+            m_LR.materials[0].SetColor("_Color",m);
         } else {
-            if (m_forwardRaycastTarget != null) m = hitColor;
+            m_LR.enabled = false;
         }
-        m_LR.materials[0].SetColor("_Color",m);
     }
 
     private Vector3 FindForwardRaycast() {
         RaycastHit hit;
         Vector3 target = (m_alwaysShow) ? transform.position + (transform.TransformDirection(Vector3.forward) * m_LineDistance) : transform.position;
         bool raycastResult = false;
+        /*
         if ((m_collisionType == CollisionType.All_Except_EasierVRAssets || m_collisionType == CollisionType.Only_EasierVRAssets) && m_layerMask != -1) {
             raycastResult = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, m_LineDistance, m_layerMask);
         } else {
             raycastResult = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, m_LineDistance);
         }
+        */
+        raycastResult = Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, m_LineDistance, layersToDetect);
         if (raycastResult) {
             target = hit.point;
             m_forwardRaycastTarget = hit.collider.transform;
@@ -177,11 +184,14 @@ public class EVRA_Pointer: MonoBehaviour
         RaycastHit hit;
         Vector3 target = initial;
         bool raycastResult = false;
+        /*
         if ((m_collisionType == CollisionType.All_Except_EasierVRAssets || m_collisionType == CollisionType.Only_EasierVRAssets) && m_layerMask != -1) {
             raycastResult = Physics.Raycast(new Vector3(initial.x,initial.y+0.01f,initial.z), -Vector3.up, out hit, Mathf.Infinity, m_layerMask);
         } else {
             raycastResult = Physics.Raycast(new Vector3(initial.x,initial.y+0.01f,initial.z), -Vector3.up, out hit, Mathf.Infinity);
         }
+        */
+        raycastResult = Physics.Raycast(new Vector3(initial.x,initial.y+0.01f,initial.z), -Vector3.up, out hit, Mathf.Infinity, layersToDetect);
         if (raycastResult) {
             target = hit.point;
             m_downwardRaycastTarget = hit.collider.transform;
@@ -206,19 +216,35 @@ public class EVRA_Pointer: MonoBehaviour
     }
 
     public void Activate() {
-        if (m_trulyOn) m_LR.enabled = true;
+        //if (m_trulyOn) m_LR.enabled = true;
+        pointerState = PointerState.On;
     }
     public void Deactivate() {
-        m_LR.enabled = false;
+        //m_LR.enabled = false;
+        pointerState = PointerState.Off;
+        ClearLine();
     }
 
-    public void TrulyDeactivate() {
-        m_trulyOn = false;
+    public void LineOn() {
+        pointerState = PointerState.On;
+    }
+    public void LineOff() {
+        pointerState = PointerState.Raycast_Only;
+        ClearLine();
+    }
+
+    private void ClearLine() {
         m_LR.positionCount = 2;
         Vector3[] tempPositions = new Vector3[2];
         tempPositions[0] = Vector3.zero;
         tempPositions[1] = Vector3.zero;
         m_LR.SetPositions(tempPositions);
+        m_LR.enabled = false;
+    }
+
+    public void TrulyDeactivate() {
+        m_trulyOn = false;
+        ClearLine();
     }
     public void TrulyActivate() {
         m_trulyOn = true;

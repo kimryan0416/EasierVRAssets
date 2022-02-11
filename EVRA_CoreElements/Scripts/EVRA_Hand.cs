@@ -35,6 +35,11 @@ public class EVRA_Hand : MonoBehaviour
             get { return m_ThumbstickDirection; }
             set {}
         }
+        private Vector2 m_ThumbstickAngle = Vector2.zero;
+        public Vector2 ThumbstickAngle {
+            get {   return m_ThumbstickAngle;   }
+            set {}
+        }
         private bool m_ThumbstickPress = false;
         public bool ThumbstickPress {
             get {   return m_ThumbstickPress;   }
@@ -53,6 +58,15 @@ public class EVRA_Hand : MonoBehaviour
         private bool m_StartButtonValue = false;
         public bool StartButtonValue {
             get {   return m_StartButtonValue;  }
+            set {}
+        }
+    #endregion
+
+    #region OutputValues
+        private Vector3 prevPosition = Vector3.zero;
+        private Vector3 m_velocity;
+        public Vector3 velocity {
+            get {   return m_velocity;  }
             set {}
         }
     #endregion
@@ -84,8 +98,12 @@ public class EVRA_Hand : MonoBehaviour
     private void Awake() {
         m_OVRControllerHelper.m_controller = m_OVRController;
     }
+    private void Start() {
+        prevPosition = transform.localPosition;
+    }
     private void Update() {
         this.CheckInputs();
+        this.CheckOutputs();
         this.InvokeEvents();
     }
 
@@ -94,6 +112,7 @@ public class EVRA_Hand : MonoBehaviour
         m_GripTriggerValue = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, m_OVRController);
         m_ThumbstickPress = OVRInput.Get(OVRInput.Button.PrimaryThumbstick, m_OVRController);
         m_ThumbstickDirection = Vector2.ClampMagnitude(OVRInput.Get(OVRInput.Axis2D.PrimaryThumbstick, m_OVRController), 1f);
+        m_ThumbstickAngle = new Vector2(CommonFunctions.GetAngleFromVector2(m_ThumbstickDirection, m_OVRController), Vector2.Distance(Vector2.zero, m_ThumbstickDirection));
         m_ButtonTwoValue = OVRInput.Get(OVRInput.Button.Two, m_OVRController);
         m_ButtonOneValue = OVRInput.Get(OVRInput.Button.One, m_OVRController);
         m_StartButtonValue = OVRInput.Get(OVRInput.Button.Start, m_OVRController);
@@ -106,6 +125,12 @@ public class EVRA_Hand : MonoBehaviour
         m_inputDowns["start"]           =    (OVRInput.GetDown(OVRInput.Button.Start))                                                  ? 1f    : (OVRInput.GetUp(OVRInput.Button.Start))                                               ? -1f : 0f;
         m_thumbAngles["left"]           = new Vector2(CommonFunctions.GetAngleFromVector2(m_thumbDirections["left"], OVRInput.Controller.LTouch), Vector2.Distance(Vector2.zero, m_thumbDirections["left"]));
         */
+    }
+
+    private void CheckOutputs() {
+        // Velocity check
+        m_velocity = (m_controllerAnchor.transform.localPosition - prevPosition) / Time.deltaTime;
+        prevPosition = m_controllerAnchor.transform.localPosition;
     }
 
     private void InvokeEvents() {

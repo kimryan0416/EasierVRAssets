@@ -70,7 +70,15 @@ public class CommonFunctions : MonoBehaviour
 
     public static float GetAngleFromVector2(Vector2 original, OVRInput.Controller source = OVRInput.Controller.None) {
         // Derive angle from y and x
-        float angle = Mathf.Atan2(original.y, original.x) * Mathf.Rad2Deg + 180f;
+        //float angle = Mathf.Atan2(original.y, original.x) * Mathf.Rad2Deg + 180f;
+        float angle;
+        if (original.x < 0) {
+            angle = 360f - (Mathf.Atan2(original.x, original.y) * Mathf.Rad2Deg * -1);
+        }
+        else {
+            angle = Mathf.Atan2(original.x, original.y) * Mathf.Rad2Deg;
+        }
+        /*
         // We need to do some offsettting becuase for some inane reason the thumbsticks have a ~5-degree offset
         switch(source) {
             case(OVRInput.Controller.LTouch):
@@ -82,6 +90,7 @@ public class CommonFunctions : MonoBehaviour
                 angle -= 5f;
                 break;
         }
+        */
         // We need to recenter the angle so that it's between 0 and 360, not 5 and 365
         angle = (angle > 360f) ? angle - 360 : angle;
         // Return

@@ -44,6 +44,7 @@ public class EVRA_Haptics : MonoBehaviour
         */
     }
 
+    /*
     private void Update() {
         FindSurroundingObjects();
         if (inRange.Count == 0) {
@@ -67,6 +68,7 @@ public class EVRA_Haptics : MonoBehaviour
                 break;
         }
     }
+    */
 
     public void FindSurroundingObjects() {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, radius);
