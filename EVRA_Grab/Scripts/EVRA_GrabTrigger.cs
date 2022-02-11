@@ -15,12 +15,15 @@ public class EVRA_GrabTrigger : MonoBehaviour
     #endregion
 
     private void Awake() {
+        // Setting the Collider's settings
         if (TryGetComponent(out Collider col)) {
             col.isTrigger = true;
         } else {
-            Collider col = gameObject.GetComponent<Collider>();
-            col.isTrigger = true;
+            Collider collider = gameObject.GetComponent<Collider>();
+            collider.isTrigger = true;
         }
+        // Setting the layer settings
+        gameObject.layer = LayerMask.NameToLayer("EasierVRAssets");
     }
     
     // All we need to do is ensure that, when this triggers the grabber, we can tell it that "You gotta look at THIS guy".
