@@ -1,84 +1,164 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EVRA;
+using EVRA.PseudoParenting;
 
+[RequireComponent(typeof(Rigidbody))]
 public class EVRA_Grabbable : MonoBehaviour
 {
-    #region Wordly things... aka scoped outside of this object
-        private Transform originalWorldParent;
-        public EVRA_Grabber currentGrabber;
-    #endregion
+    /*
+    [SerializeField]
+    private List<EVRA_New_GrabTrigger> triggers = new List<EVRA_New_GrabTrigger>();
+    */
+    
+    [SerializeField, Range(0,2)]
+    private int maxGrabbers = 2;
 
-    #region Grabbable Parent
-        [SerializeField] [Tooltip("If this is the child of a grander object that we want to grab, then we can use this as a referral.")]
-        private Transform grabbableParent;
-        private Rigidbody grabbableParentRB;
-        private bool originalKinematicState;
-    #endregion
+    [SerializeField, Range(0f,1f)]
+    private float m_secondGrabWeight = 0.25f;
 
-    #region Triggers that will trigger the grabber
-        [SerializeField] [Tooltip("If you wish to make this object snap to position, add these transforms to this list. If left blank, the script will use whatever is set to 'grabbableParent' (or the object itself, if 'grabbableParent' is not set).")]
-        private List<EVRA_GrabTrigger> m_triggers = new List<EVRA_GrabTrigger>();
-    #endregion
+    private Rigidbody rb = null;
+    private bool isKinematic = false;
+    private bool useGravity = false;
 
-    #region Should we Snap?
-        [SerializeField] [Tooltip("Should this object, when grabbed, snap into position and rotation to match the grabber?")]
-        private bool m_shouldSnap = false;
-    #endregion
+    private List<EVRA_Grabber> grabbers = new List<EVRA_Grabber>();
+    //private Dictionary<EVRA_New_Grabber, FakeChildTwoParents> grabberDisplacements = new Dictionary<EVRA_New_Grabber, FakeChildTwoParents>();
+    private Dictionary<EVRA_Grabber, FakeChild> grabberDisplacements = new Dictionary<EVRA_Grabber, FakeChild>();
 
-    private void Awake() {
-        // If we don't have a grabbable parent set, we set it to this own object for safety
-        if (!grabbableParent) grabbableParent = this.transform;
-        // Based on the grabbable parent, we collect various aspects such as who's the parrent of our grabbable parent and what are their rigidobyd aspects, if they ahve any
-        originalWorldParent = grabbableParent.parent;
-        grabbableParentRB = grabbableParent.GetComponent<Rigidbody>();
-        originalKinematicState = (grabbableParentRB) ? grabbableParentRB.isKinematic : false;
-        // For each of the triggers, we need to make sure they know that THIS is the CustomGrabbable that the grabber needs to refer to
-        foreach(EVRA_GrabTrigger t in m_triggers) {
-            t.Init(this);
+    void Awake() {
+        rb = gameObject.GetComponent<Rigidbody>();
+        isKinematic = rb.isKinematic;
+        useGravity = rb.useGravity;
+        /*
+        triggers = new List<EVRA_New_GrabTrigger>(GetComponentsInChildren<EVRA_New_GrabTrigger>());
+        foreach(EVRA_New_GrabTrigger trigger in triggers) {
+            trigger.Init(this);
         }
+        */
     }
 
-    // This is called by the grabber currently grabbing the object
-    public void GrabBegin(EVRA_Grabber newGrabber, EVRA_GrabTrigger detectedTrigger) {
-        // If we're actually being held by another grabber, we prematurely end that grabber's grabbing
-        if (currentGrabber != null && currentGrabber != newGrabber) currentGrabber.GrabEnd();
-        // If our grabbable parent has a rigidbody, we set its kinematic setting to true to prevent collisiosn
-        if (grabbableParentRB) grabbableParentRB.isKinematic = true;
-        // We set grabbable parent as a child of our grabber
-        grabbableParent.SetParent(newGrabber.transform);
-        // We save a reference to our new grabber
-        currentGrabber = newGrabber;
+    public bool AddGrabber(EVRA_Grabber grabber) {
+        if (grabbers.Count >= maxGrabbers) return false;
+        if (!grabbers.Contains(grabber)) {
+            // if (!grabberDisplacements.ContainsKey(grabber)) grabberDisplacements.Add(grabber, new FakeChildTwoParents());
+            if (!grabberDisplacements.ContainsKey(grabber)) grabberDisplacements.Add(grabber, new FakeChild());
+            rb.isKinematic = true;
+            grabberDisplacements[grabber].CalculateOffsets(grabber.pivot, this.transform);
+            rb.isKinematic = isKinematic;
+            rb.useGravity = false;
+            grabbers.Add(grabber);
+        }
+        return true;
+    }
 
-        // If we want to snap, we usually snap based on the clsoest detected trigger (passed on from the grabber).
-        // In other words, the grabber has already detected what's the closest trigger. All we need to do is snap our grabbable object relative to that trigger's position on the grabbable object
-        if (m_shouldSnap) {
-            Transform to = detectedTrigger.transform;
-            Quaternion destinationRotation = currentGrabber.transform.rotation * Quaternion.Inverse(to.localRotation) * Quaternion.Euler(45,0,0);
-            grabbableParent.transform.rotation = destinationRotation;
-            Vector3 destinationPosition = currentGrabber.transform.position + (grabbableParent.position - to.position);
-            grabbableParent.transform.position = destinationPosition;
+    public bool RemoveGrabber(EVRA_Grabber grabber) {
+        if (!grabbers.Contains(grabber)) {
+            return false;
         }
-    }
-    public void GrabEnd(Vector3 linearVelocity, Vector3 angularVelocity) {
-        grabbableParent.SetParent(originalWorldParent);
-        if (grabbableParentRB) {
-            grabbableParentRB.isKinematic = originalKinematicState;
-            grabbableParentRB.velocity = linearVelocity;
-            grabbableParentRB.angularVelocity = angularVelocity;
+
+        grabbers.Remove(grabber);
+        grabberDisplacements[grabber].ResetOffsets();
+        
+        if (grabbers.Count > 0 && grabbers[0] != grabber) {
+            // There's another grabber...
+            grabberDisplacements[grabbers[0]].CalculateOffsets();
+        } else {
+            rb.velocity = grabber.parentHand.velocity;
+            rb.angularVelocity = grabber.parentHand.angularVelocity;
         }
-        currentGrabber = null;
+
+        return true;
     }
-    public void GrabEnd() {
-        grabbableParent.SetParent(originalWorldParent);
-        currentGrabber = null;
+
+    public bool IsFirstGrabber(EVRA_Grabber grabber) {
+        return (grabbers.Contains(grabber) && grabbers[0]==grabber);
     }
-    // This one is called under the unique situation that the other grab volume is called in its own GrabEnd() instance.
-    // Therefore, we don't need to call `GrabEnd()` with the other hand nor do any snapping
-    public void SwitchHand(EVRA_Grabber newGrabber) {
-        // We set grabbable parent as a child of our grabber
-        grabbableParent.SetParent(newGrabber.transform, true);
-        // We save a reference to our new grabber
-        currentGrabber = newGrabber;
+
+    public bool HasNoGrabbers() {
+        return grabbers.Count == 0;
     }
+
+    void Update() {
+        if (grabbers.Count > 0) {
+            EVRA_Grabber grabber = grabbers[0];
+            grabberDisplacements[grabber].Move();
+        } else {
+            Die();
+        }
+
+        // FakeChildTwoParents offsets = grabberDisplacements[grabber];
+        // Transform parent = offsets.parent;
+        // offsets.RotateParentToOtherParent();
+
+        // Vector3 newpos = parent.TransformPoint(offsets.pos);
+        // Vector3 newfw = parent.TransformDirection(offsets.fw);
+        // Vector3 newup = parent.TransformDirection(offsets.up);
+        // Quaternion newrot = Quaternion.LookRotation(newfw, newup);
+        // transform.position = newpos;
+        // transform.rotation = newrot;
+    }
+
+    public void Die() {
+        rb.isKinematic = isKinematic;
+        rb.useGravity = useGravity;
+        Destroy(this);
+    }
+
+    /*
+    public bool TriggerGrabbed(EVRA_New_GrabTrigger trigger, EVRA_New_Grabber grabber, Transform pivot) {
+        if (
+            !triggers.Contains(trigger) ||
+            grabbers.Count >= maxGrabbers
+        ) {
+            Debug.Log("Grabber - Failed to Grab");
+            return false;
+        }
+
+        if (!grabbers.Contains(grabber)) {
+            if (!grabberDisplacements.ContainsKey(grabber)) grabberDisplacements.Add(grabber, new FakeChildTwoParents());
+            grabberDisplacements[grabber].SetWeight(m_secondGrabWeight);
+            if (rb) {
+                rb.isKinematic = false;
+                grabberDisplacements[grabber].CalculateOffsets(pivot, this.transform);
+                rb.isKinematic = isKinematic;
+            } else {
+                grabberDisplacements[grabber].CalculateOffsets(pivot, this.transform);
+            }
+            grabbers.Add(grabber);
+        }
+
+        if (
+            grabbers.Count > 1 && 
+            grabbers[0] != grabber
+        ) {
+            // We're already being grabbed by another grabber.
+            // We need to make it so that the pivot of the first grabber looks at the second pivot. And recalculate everything
+            grabberDisplacements[grabbers[0]].SetOtherParent(pivot);
+        }
+
+        return true;
+    }
+
+    public bool TriggerLetGo(EVRA_New_GrabTrigger trigger, EVRA_New_Grabber grabber) {
+       
+       if (
+            !triggers.Contains(trigger) ||
+            !grabbers.Contains(grabber)
+        ) {
+            Debug.Log("Grabber - Failed to let go");
+            return false;
+        }
+
+        grabbers.Remove(grabber);
+        grabberDisplacements[grabber].ResetOffsets();
+        
+        if (grabbers.Count > 0 && grabbers[0] != grabber) {
+            // There's another grabber...
+            grabberDisplacements[grabbers[0]].ResetOtherParent();
+        }
+
+        return true;
+    }
+    */
 }

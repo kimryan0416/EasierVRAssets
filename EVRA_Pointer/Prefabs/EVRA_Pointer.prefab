@@ -47,6 +47,7 @@ LineRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -141,6 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc34e1a8f61c5447083f8089929ca281, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pointerState: 2
   m_lineType: 0
   m_LineDistance: 10
   numPositions: 2
@@ -149,4 +151,4 @@ MonoBehaviour:
   hitColor: {r: 0, g: 0, b: 1, a: 1}
   layersToDetect:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4294967295

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using EVRA.Inputs;
 
 public enum PointerState {
     Off,
@@ -222,6 +223,7 @@ public class EVRA_Pointer: MonoBehaviour
     public void Deactivate() {
         //m_LR.enabled = false;
         pointerState = PointerState.Off;
+        ClearTargets();
         ClearLine();
     }
 
@@ -230,7 +232,15 @@ public class EVRA_Pointer: MonoBehaviour
     }
     public void LineOff() {
         pointerState = PointerState.Raycast_Only;
+        ClearTargets();
         ClearLine();
+    }
+
+    private void ClearTargets() {
+        m_downwardRaycastTarget = null;
+        m_downwardRaycastHitPosition = Vector3.zero;
+        m_forwardRaycastTarget = null;
+        m_forwardRaycastHitPosition = Vector3.zero;
     }
 
     private void ClearLine() {
@@ -244,6 +254,7 @@ public class EVRA_Pointer: MonoBehaviour
 
     public void TrulyDeactivate() {
         m_trulyOn = false;
+        ClearTargets();
         ClearLine();
     }
     public void TrulyActivate() {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+using EVRA;
+
 public class CustomGrabber_GrabVolume : MonoBehaviour
 {
     [SerializeField]
