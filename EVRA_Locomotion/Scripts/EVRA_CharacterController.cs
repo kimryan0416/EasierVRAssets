@@ -55,7 +55,12 @@ public class EVRA_CharacterController : MonoBehaviour
         set { m_maxGroundAngle = (value > 90f) ? 90f : (value < 0f) ? 0f : value; }
     }
     [SerializeField, Tooltip("When moving, should it be relative to the forward direction of another object (ex. a Camera)? If so, place that object's Transform here. Then, 'forward' will be relative to the object's forward direction instead of the global forward. Recommended to be the center camera of the user.")]
-    private Transform forwardDirectionRef;
+    private Transform m_forwardDirectionRef;
+    public Transform forwardDirectionRef {
+        get { return m_forwardDirectionRef; }
+        set { }
+    }
+
 
     [Header("Rotational Movement")]
     [SerializeField, Range(0f, 360f), Tooltip("The amount of rotation every time the rotation is initialized")]
@@ -171,13 +176,18 @@ public class EVRA_CharacterController : MonoBehaviour
 
         // Get the direction that the object should move
         //Vector2 playerInput = GetHorizontalInput();
-        direction = LocomotionFunctions.InputRelativeToParent(m_playerInput, forwardDirectionRef);
-        //Vector3 direction = LocomotionFunctions.InputRelativeToParent(playerInput, forwardDirectionRef);
+        //direction = LocomotionFunctions.InputRelativeToParent(m_playerInput, m_forwardDirectionRef);
+        Vector2 forward = new Vector2(m_forwardDirectionRef.forward.x, m_forwardDirectionRef.forward.z).normalized;
+        Vector2 right = new Vector2(m_forwardDirectionRef.right.x, m_forwardDirectionRef.right.z).normalized;
+        //project forward and right vectors on the horizontal plane (y = 0)
+        direction = forward * m_playerInput.y + right * m_playerInput.x;
+        //Vector3 direction = LocomotionFunctions.InputRelativeToParent(playerInput, m_forwardDirectionRef);
         direction = Vector2.ClampMagnitude(direction, 1f);
         //direction = Vector3.ClampMagnitude(direction, 1f);
 
         // Convert that direction to a desired velocity
-        desiredVelocity = new Vector3(direction.x, 0f, direction.y); desiredVelocity *= m_maxSpeed;
+        desiredVelocity = new Vector3(direction.x, 0f, direction.y); 
+        desiredVelocity *= m_maxSpeed;
         //desiredVelocity = direction * m_maxSpeed;
 
         /*

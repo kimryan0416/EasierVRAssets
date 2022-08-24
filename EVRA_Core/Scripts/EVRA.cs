@@ -173,7 +173,6 @@ namespace EVRA {
                 }
                 return direction;
             }
-
             public static Vector3 InputRelativeToParent(Vector3 input, Transform parent = null) {
                 Vector3 direction = (parent) ? parent.TransformDirection(input) : input;
                 return direction;
