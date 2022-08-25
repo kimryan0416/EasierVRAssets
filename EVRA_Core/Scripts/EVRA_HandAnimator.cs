@@ -70,6 +70,19 @@ public class EVRA_HandAnimator : MonoBehaviour
             gameObject.SetActive(false);
             return;
         }
+        // if our hand is the RIGHT hand, we modify the object to match the right hand direction (it's defaulted to left)
+        if (m_hand.OVRController == OVRInput.Controller.RTouch) {
+            transform.position = new Vector3(
+                transform.position.x * -1f,
+                transform.position.y, 
+                transform.position.z
+            );
+            transform.localScale = new Vector3(
+                transform.localScale.x,
+                transform.localScale.y * -1f,
+                transform.localScale.z
+            );
+        }
         AddControllerAnimations();
     }
 
