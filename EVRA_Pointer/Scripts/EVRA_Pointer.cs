@@ -38,33 +38,73 @@ public class EVRA_Pointer: MonoBehaviour
     [SerializeField] [Tooltip("How far (in meters) should the line reach out?")]
     private float m_LineDistance = 10f;
 
+    [SerializeField] [Tooltip("How wide (in meters) should the line be?")]
+    private float m_lineWidth = 0.02f;
+
     [SerializeField] [Tooltip("How many points on the line? The more points, the smoother the line")]
     private int numPositions = 2;
 
-    [Tooltip("The current Transform target of the raycast")]
+    [SerializeField, Tooltip("The current Transform target of the raycast")]
     private Transform m_forwardRaycastTarget = null;
     public Transform forwardRaycastTarget {
         get {   return m_forwardRaycastTarget; }
         set {}
     }
-    [Tooltip("The current position of the raycast hit itself")]
+    [SerializeField, Tooltip("The current position of the raycast hit itself")]
     private Vector3 m_forwardRaycastHitPosition = Vector3.zero;
     public Vector3 forwardRaycastHitPosition {
         get {   return m_forwardRaycastHitPosition;    }
         set {}
     }
-    [Tooltip("The current Transform target of the raycast")]
+    [SerializeField, Tooltip("The current normal of the raycast hit itself")]
+    private Vector3 m_forwardRaycastHitNormal = Vector3.zero;
+    public Vector3 forwardRaycastHitNormal {
+        get {   return m_forwardRaycastHitNormal;    }
+        set {}
+    }
+    [SerializeField, Tooltip("The current distance between the pointer and the raycast hit")]
+    private float m_forwardRaycastHitDistance = Mathf.Infinity;
+    public float forwardRaycastHitDistance {
+        get { return m_forwardRaycastHitDistance; }
+        set {}
+    }
+    [SerializeField, Tooltip("The triangle index of the mesh the raycast hit")]
+    private int m_forwardRaycastHitTriangleIndex = -1;
+    public int forwardRaycastHitTriangleIndex {
+        get { return m_forwardRaycastHitTriangleIndex; }
+        set {}
+    }
+    [SerializeField, Tooltip("The current Transform target of the raycast")]
     private Transform m_downwardRaycastTarget = null;
     public Transform downwardRaycastTarget {
         get {   return m_downwardRaycastTarget; }
         set {}
     }
-    [Tooltip("The current position of the raycast hit itself")]
+    [SerializeField, Tooltip("The current position of the raycast hit itself")]
     private Vector3 m_downwardRaycastHitPosition = Vector3.zero;
     public Vector3 downwardRaycastHitPosition {
         get {   return m_downwardRaycastHitPosition;    }
         set {}
     }
+    [SerializeField, Tooltip("The current normal of the raycast hit itself")]
+    private Vector3 m_downwardRaycastHitNormal = Vector3.zero;
+    public Vector3 downwardRaycastHitNormal {
+        get {   return m_downwardRaycastHitNormal;    }
+        set {}
+    }
+    [SerializeField, Tooltip("The current distance between the pointer and the raycast hit")]
+    private float m_downwardRaycastHitDistance = Mathf.Infinity;
+    public float downwardRaycastHitDistance {
+        get { return m_downwardRaycastHitDistance; }
+        set {}
+    }
+    [SerializeField, Tooltip("The triangle index of the mesh the raycast hit")]
+    private int m_downwardRaycastHitTriangleIndex = -1;
+    public int downwardRaycastHitTriangleIndex {
+        get { return m_downwardRaycastHitTriangleIndex; }
+        set {}
+    }
+
     // The raycast target, which would depend on whether the line is straight or bezier curved
     public Transform raycastTarget {
         get {   return (m_lineType == LineType.BezierCurve) ? m_downwardRaycastTarget : m_forwardRaycastTarget; }
@@ -73,6 +113,21 @@ public class EVRA_Pointer: MonoBehaviour
     // The raycast hit position, which would depend on whether the line is straight or bezier curved
     public Vector3 raycastHitPosition {
         get {   return (m_lineType == LineType.BezierCurve) ? m_downwardRaycastHitPosition : m_forwardRaycastHitPosition; }
+        set {}
+    }
+    // The raycast hit normal, which would depend on whether the line is straight or bezier curved
+    public Vector3 raycastHitNormal {
+        get {   return (m_lineType == LineType.BezierCurve) ? m_downwardRaycastHitNormal : m_forwardRaycastHitNormal; }
+        set {}
+    }
+    // The raycast hit normal, which would depend on whether the line is straight or bezier curved
+    public float raycastHitDistance {
+        get {   return (m_lineType == LineType.BezierCurve) ? m_downwardRaycastHitDistance : m_forwardRaycastHitDistance; }
+        set {}
+    }
+    // The raycast hit's triangle index, which would depend on whether the line is straight or bezier curved
+    public int raycastHitTriangleIndex {
+        get {   return (m_lineType == LineType.BezierCurve) ? m_downwardRaycastHitTriangleIndex : m_forwardRaycastHitTriangleIndex; }
         set {}
     }
 
@@ -105,11 +160,11 @@ public class EVRA_Pointer: MonoBehaviour
     private void Awake() {
         if (!gameObject.GetComponent<LineRenderer>()) {
             m_LR = gameObject.AddComponent<LineRenderer>();
-            m_LR.SetWidth(0.02f, 0.02f);
         } else {
             m_LR = gameObject.GetComponent<LineRenderer>();
         }
 
+        m_LR.SetWidth(m_lineWidth, m_lineWidth);
         m_LR.useWorldSpace = true;
         m_LR.receiveShadows = false;
         if (numPositions < 2) numPositions = 2;
@@ -162,6 +217,9 @@ public class EVRA_Pointer: MonoBehaviour
             target = hit.point;
             m_forwardRaycastTarget = hit.collider.transform;
             m_forwardRaycastHitPosition = hit.point;
+            m_forwardRaycastHitNormal = hit.normal;
+            m_forwardRaycastHitDistance = hit.distance;
+            m_forwardRaycastHitTriangleIndex = hit.triangleIndex;
             /*
             if (m_lineType == LineType.Straight) {
                 m_raycastTarget = hit.collider.transform;
@@ -171,6 +229,9 @@ public class EVRA_Pointer: MonoBehaviour
         } else {
             m_forwardRaycastTarget = null;
             m_forwardRaycastHitPosition = Vector3.zero;
+            m_forwardRaycastHitNormal = Vector3.zero;
+            m_forwardRaycastHitDistance = m_LineDistance;
+            m_forwardRaycastHitTriangleIndex = -1;
             /*
             if (m_lineType == LineType.Straight) {
                 m_raycastTarget = null;
@@ -197,6 +258,9 @@ public class EVRA_Pointer: MonoBehaviour
             target = hit.point;
             m_downwardRaycastTarget = hit.collider.transform;
             m_downwardRaycastHitPosition = hit.point;
+            m_downwardRaycastHitNormal = hit.normal;
+            m_downwardRaycastHitDistance = hit.distance;
+            m_downwardRaycastHitTriangleIndex = hit.triangleIndex;
             /*
             if (m_lineType == LineType.BezierCurve) {
                 m_raycastTarget = hit.collider.transform;
@@ -206,6 +270,9 @@ public class EVRA_Pointer: MonoBehaviour
         } else {
             m_downwardRaycastTarget = null;
             m_downwardRaycastHitPosition = Vector3.zero;
+            m_downwardRaycastHitNormal = Vector3.zero;
+            m_downwardRaycastHitDistance = Mathf.Infinity;    
+            m_downwardRaycastHitTriangleIndex = -1;      
             /*
             if (m_lineType == LineType.BezierCurve) {
                 m_raycastTarget = null;
