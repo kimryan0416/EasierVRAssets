@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EVRA_DebugGazeTracker : MonoBehaviour
+public class EVRA_GazeTracker : MonoBehaviour
 {
     public Transform headRef;
     public List<OVREyeGaze> eyes;
