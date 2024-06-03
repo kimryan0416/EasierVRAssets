@@ -17,6 +17,7 @@ public class EVRA_UIOverlay : MonoBehaviour
 
     // We will populate this in Awake(). It refers to all children elements that derive from "Graphics"
     [SerializeField] Graphic[] uiElementsToApplyTo;
+    [SerializeField] Renderer[] renderersToApplyTo;
 
     // We need to set this shader test mode - it's the equivalent of testing the z-buffer in OpenGL
     private const string shaderTestMode = "unity_GUIZTestMode";
@@ -31,6 +32,10 @@ public class EVRA_UIOverlay : MonoBehaviour
         if (uiElementsToApplyTo.Length == 0) {
             uiElementsToApplyTo = gameObject.GetComponentsInChildren<Graphic>();
         }
+        if (renderersToApplyTo.Length == 0) {
+            renderersToApplyTo = gameObject.GetComponentsInChildren<Renderer>();
+        }
+
         foreach (var graphic in uiElementsToApplyTo) {
             Material material = graphic.materialForRendering;
             if (material == null) continue;
@@ -40,6 +45,17 @@ public class EVRA_UIOverlay : MonoBehaviour
             }
             materialCopy.SetInt(shaderTestMode, (int)desiredUIComparison);
             graphic.material = materialCopy;
+        }
+
+        foreach (var renderer in renderersToApplyTo) {
+            Material material = renderer.materials[0];
+            if (material == null) continue;
+            if (!materialMappings.TryGetValue(material, out Material materialCopy)) {
+                materialCopy = new Material(material);
+                materialMappings.Add(material, materialCopy);
+            }
+            materialCopy.SetInt(shaderTestMode, (int)desiredUIComparison);
+            renderer.materials[0] = materialCopy;
         }
     }
 }
