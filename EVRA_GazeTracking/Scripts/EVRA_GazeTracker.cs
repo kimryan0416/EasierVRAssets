@@ -6,64 +6,52 @@ using TMPro;
 public class EVRA_GazeTracker : MonoBehaviour
 {   
     public enum TrackingType { Update, FixedUpdate, Coroutine }
-    public enum TrackingEyes { Left, Right, Both }
+    public enum UpVector { World, Head }
 
     [Header("Head and Eyes")]
     public Transform headRef;
-    //public TrackingEyes _eyes = TrackingEyes.Both;
     public List<OVREyeGaze> eyes;
+
+    [Header("Tracking Settings")]
+    public float trackingRange = 10f;
+    public TrackingType trackType = TrackingType.FixedUpdate;
+    [Range(1,200)] public int trackingFrequency = 200;
+    private IEnumerator updateCoroutine = null;
+    public UpVector upVector = UpVector.World;
 
     [Header("Reticle Settings")]
     public Transform reticle;
     private Renderer reticleRenderer;
     public float reticleSize = 0.25f;
 
-    [Header("Tracking Settings")]
-    public float trackingRange = 10f;
-    [Range(1,200)] public int trackingFrequency = 200;
-    public TrackingType trackType = TrackingType.FixedUpdate;
-    private IEnumerator updateCoroutine = null;
-
-    [Header("Other References and Settings")]
-    public TextMeshProUGUI textbox;
+    [Header("Recording References and Settings")]
+    public TextMeshProUGUI leftTextbox, rightTextbox, angularVelocityTextbox;
+    public LineRenderer lr;
+    public List<Vector3> lr_positions = new List<Vector3>();
 
     /// CACHED DATA AND VARAIBLES
-    // Perms for eye tracking
-    //private const OVRPermissionsRequester.Permission EyeTrackingPermission = OVRPermissionsRequester.Permission.EyeTracking;
-    // Reference to our own OnPermissionGranted(string permissionId), which we use in certain cases.
-    //private Action<string> _onPermissionGranted;
-    //
-    private OVRPlugin.EyeGazesState _currentEyeGazesState;
-    //
-    private Vector3 previousPosition, previousDirection, previousRelativeDirection, previousHeadOrientation;
-    private Vector3 currentPosition, currentDirection, currentRelativeDirection, currentHeadOrientation;
-    //
-    private float angularVelocity;
-    private List<float> timestamps = new List<float>();
-    private float startingTime;
-    private float endingTime;
-    private int hzCounter = 0;
+    private Vector3 previousGazePosition, previousGazeOrientation, previousHeadOrientation;
+    private Vector3 currentGazePosition, currentGazeOrientation, currentHeadOrientation;
+
+    // OUTPUTS
+    public float angularVelocity = 0f;
+    public Vector3 gazePoint => currentGazePosition + currentGazeOrientation * trackingRange;
+
     
     private void Awake() {
         // Check references to the head reference (this transform) and the renderer for the reticle.
         if (headRef == null) headRef = this.transform;
-        reticleRenderer = reticle.GetComponent<Renderer>();
+        if (reticle != null) reticleRenderer = reticle.GetComponent<Renderer>();
+        if (lr != null) lr.positionCount = 0;
     }
 
-
-
-    // Start is called before the first frame update
     private void Start() {
-        // Initialize the readout for analyzing frequency hz in a cave
-        InitializeReadout();
-        // Save the current, then the previous eye positions.
-        SaveCurrent();
+        SaveCurrent();          // Save the current, then the previous eye positions.
         SavePrev();
     }
 
     
     // During the actual in-game performance, we need to run Update/FixedUpdate/Coroutine for our functionality.
-    // The Update 
     private void Update() {
         if (trackType != TrackingType.Update) return;
         UpdateGaze(Time.deltaTime);
@@ -93,71 +81,74 @@ public class EVRA_GazeTracker : MonoBehaviour
 
 
     public void UpdateGaze(float deltaTime) {
-        // Update the counter for the number of times this function was called.
-        UpdateReadout();
-
         // Get the current properties of the eye
         SaveCurrent();
         
         // Based on the current and previous properties, measure the angular velocity of the eye
         // Done by getting the angle between the local relative directions of the previous and current eye, and then dividing by the amount of time passed
-        float prevAngle = Vector3.SignedAngle(previousHeadOrientation, previousDirection, Vector3.up);
-        float currentAngle = Vector3.SignedAngle(currentHeadOrientation, currentDirection, Vector3.up);
-        angularVelocity = (currentAngle - prevAngle) / deltaTime;
+        //float prevAngle = Vector3.SignedAngle(previousHeadOrientation, previousDirection, Vector3.up);
+        //float currentAngle = Vector3.SignedAngle(currentHeadOrientation, currentDirection, Vector3.up);
+        Vector3 orientationUp = (upVector == UpVector.Head) ? headRef.up : Vector3.up;
+        float signedAngle = Vector3.SignedAngle(
+            headRef.InverseTransformDirection(previousGazeOrientation), 
+            headRef.InverseTransformDirection(currentGazeOrientation), 
+            orientationUp
+        );
+        angularVelocity = signedAngle / deltaTime;
+
+        // Save the previous with the current
+        SavePrev();
 
         // Reposition the reticle
         if (reticle != null) {
-            reticle.position = currentPosition + currentDirection*trackingRange;
+            reticle.position = gazePoint;
             reticle.localScale = Vector3.one * reticleSize * trackingRange;
             reticle.LookAt(headRef);
             if (reticleRenderer != null) reticleRenderer.enabled = (angularVelocity >= 90f) ? false : true;
         }
-        // Save the previous with the current
-        
-        SavePrev();
+
+        // Update the counter for the number of times this function was called.
+        UpdateReadout();
     }
 
     private void SavePrev() {
-        previousPosition = currentPosition;
-        previousDirection = currentDirection;
-        previousRelativeDirection = currentRelativeDirection;
+        previousGazePosition = currentGazePosition;
+        previousGazeOrientation = currentGazeOrientation;
         previousHeadOrientation = currentHeadOrientation;
     }
 
     private void SaveCurrent() {
         // Initialize Vector3's for average eye position and eye direction
-        currentPosition = Vector3.zero;
-        currentDirection  = Vector3.zero;
-        currentRelativeDirection = Vector3.zero;
+        currentGazePosition = Vector3.zero;
+        currentGazeOrientation = Vector3.zero;
         // Aggregate
         foreach(OVREyeGaze eye in eyes) {
-            currentPosition += eye.transform.position;
-            currentDirection += eye.transform.forward;
-            currentRelativeDirection += headRef.InverseTransformVector(eye.transform.forward).normalized;
+            currentGazePosition += eye.transform.position;
+            currentGazeOrientation += eye.transform.forward;
         }
         // Average, and finalize
-        currentPosition /= eyes.Count;
-        currentDirection = Vector3.Normalize(currentDirection);
-        currentRelativeDirection = Vector3.Normalize(currentRelativeDirection);
+        currentGazePosition /= eyes.Count;
+        currentGazeOrientation = Vector3.Normalize(currentGazeOrientation);
         currentHeadOrientation = headRef.forward;
     }
 
-    private void InitializeReadout() {
-        startingTime = Time.time;
-        endingTime = startingTime+1.0f;
-        hzCounter = 0;
-    }
-
     private void UpdateReadout() {
-        // update timestamps
-        float curTime = Time.time;
-        if (curTime-startingTime > endingTime) {
-            textbox.text = hzCounter.ToString();
-            hzCounter = 0;
-            startingTime = endingTime;
-            endingTime += 1.0f;
+        foreach(OVREyeGaze eye in eyes) {
+            if (eye.Eye == OVREyeGaze.EyeId.Left) {
+                if (leftTextbox != null) leftTextbox.text = eye.hzCounter.ToString();
+            }
+            else {
+                if (rightTextbox != null) rightTextbox.text = eye.hzCounter.ToString();
+            }
+
+            if (lr != null) {
+                lr_positions.Add(reticle.position);
+                lr.SetPositions(lr_positions.ToArray());
+                lr.positionCount = lr_positions.Count;
+            }
+
+            if (angularVelocityTextbox != null) angularVelocityTextbox.text = ((int)(angularVelocity*100.0f)/100.0f).ToString();
         }
-        hzCounter += 1;
     }
 
     private void OnDestroy() {
