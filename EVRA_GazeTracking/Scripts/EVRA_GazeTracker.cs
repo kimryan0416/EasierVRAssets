@@ -21,7 +21,6 @@ public class EVRA_GazeTracker : MonoBehaviour
 
     [Header("Reticle Settings")]
     public Transform reticle;
-    private Renderer reticleRenderer;
     public float reticleSize = 0.25f;
 
     [Header("Recording References and Settings")]
@@ -30,18 +29,22 @@ public class EVRA_GazeTracker : MonoBehaviour
     public List<Vector3> lr_positions = new List<Vector3>();
 
     /// CACHED DATA AND VARAIBLES
-    private Vector3 previousGazePosition, previousGazeOrientation, previousHeadOrientation;
-    private Vector3 currentGazePosition, currentGazeOrientation, currentHeadOrientation;
+    private Vector3 prevGazeWorld, prevGazeLocal;
+    private Vector3 curGazeWorld, curGazeLocal;
 
     // OUTPUTS
-    public float angularVelocity = 0f;
-    public Vector3 gazePoint => currentGazePosition + currentGazeOrientation * trackingRange;
+    private float _angularVelocity = 0f;
+    public float angularVelocity { get => _angularVelocity; set{} }
+    private float _angleDiff = 0f;
+    public float angleDiff { get => _angleDiff; set{} }
+    private float _signedAngleDiff = 0f;
+    public float signedAngleDiff { get => _signedAngleDiff; set{} }
+    public Vector3 gazePoint => headRef.position + curGazeWorld * trackingRange;
 
     
     private void Awake() {
         // Check references to the head reference (this transform) and the renderer for the reticle.
         if (headRef == null) headRef = this.transform;
-        if (reticle != null) reticleRenderer = reticle.GetComponent<Renderer>();
         if (lr != null) lr.positionCount = 0;
     }
 
@@ -89,12 +92,9 @@ public class EVRA_GazeTracker : MonoBehaviour
         //float prevAngle = Vector3.SignedAngle(previousHeadOrientation, previousDirection, Vector3.up);
         //float currentAngle = Vector3.SignedAngle(currentHeadOrientation, currentDirection, Vector3.up);
         Vector3 orientationUp = (upVector == UpVector.Head) ? headRef.up : Vector3.up;
-        float signedAngle = Vector3.SignedAngle(
-            headRef.InverseTransformDirection(previousGazeOrientation), 
-            headRef.InverseTransformDirection(currentGazeOrientation), 
-            orientationUp
-        );
-        angularVelocity = signedAngle / deltaTime;
+        _angleDiff = Vector3.Angle(prevGazeLocal, curGazeLocal);
+        _signedAngleDiff = Vector3.SignedAngle( prevGazeLocal, curGazeLocal, orientationUp );
+        _angularVelocity = _angleDiff / deltaTime;
 
         // Save the previous with the current
         SavePrev();
@@ -104,7 +104,6 @@ public class EVRA_GazeTracker : MonoBehaviour
             reticle.position = gazePoint;
             reticle.localScale = Vector3.one * reticleSize * trackingRange;
             reticle.LookAt(headRef);
-            if (reticleRenderer != null) reticleRenderer.enabled = (angularVelocity >= 90f) ? false : true;
         }
 
         // Update the counter for the number of times this function was called.
@@ -112,24 +111,20 @@ public class EVRA_GazeTracker : MonoBehaviour
     }
 
     private void SavePrev() {
-        previousGazePosition = currentGazePosition;
-        previousGazeOrientation = currentGazeOrientation;
-        previousHeadOrientation = currentHeadOrientation;
+        prevGazeWorld = curGazeWorld;
+        prevGazeLocal = curGazeLocal;
     }
 
     private void SaveCurrent() {
         // Initialize Vector3's for average eye position and eye direction
-        currentGazePosition = Vector3.zero;
-        currentGazeOrientation = Vector3.zero;
+        curGazeWorld = Vector3.zero;
         // Aggregate
         foreach(OVREyeGaze eye in eyes) {
-            currentGazePosition += eye.transform.position;
-            currentGazeOrientation += eye.transform.forward;
+            curGazeWorld += eye.transform.forward;
         }
         // Average, and finalize
-        currentGazePosition /= eyes.Count;
-        currentGazeOrientation = Vector3.Normalize(currentGazeOrientation);
-        currentHeadOrientation = headRef.forward;
+        curGazeWorld = Vector3.Normalize(curGazeWorld);
+        curGazeLocal = headRef.InverseTransformDirection(curGazeWorld);
     }
 
     private void UpdateReadout() {
@@ -140,15 +135,14 @@ public class EVRA_GazeTracker : MonoBehaviour
             else {
                 if (rightTextbox != null) rightTextbox.text = eye.hzCounter.ToString();
             }
-
-            if (lr != null) {
-                lr_positions.Add(reticle.position);
-                lr.SetPositions(lr_positions.ToArray());
-                lr.positionCount = lr_positions.Count;
-            }
-
-            if (angularVelocityTextbox != null) angularVelocityTextbox.text = ((int)(angularVelocity*100.0f)/100.0f).ToString();
         }
+        if (lr != null) {
+            lr_positions.Add(gazePoint);
+            lr.positionCount = lr_positions.Count;
+            lr.SetPositions(lr_positions.ToArray());
+        }
+
+        if (angularVelocityTextbox != null) angularVelocityTextbox.text = (_angularVelocity > 180f) ? (_signedAngleDiff < 0f) ? "Left" : "Right" : "-";
     }
 
     private void OnDestroy() {
