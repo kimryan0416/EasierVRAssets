@@ -39,7 +39,10 @@ public class EVRA_GazeTracker : MonoBehaviour
     public float angleDiff { get => _angleDiff; set{} }
     private float _signedAngleDiff = 0f;
     public float signedAngleDiff { get => _signedAngleDiff; set{} }
+    private string _saccade_status = "";
+    public string saccade_status => _saccade_status;
     public Vector3 gazePoint => headRef.position + curGazeWorld * trackingRange;
+    public Vector3 gazePoint2D => Camera.main.WorldToScreenPoint(gazePoint);
 
     
     private void Awake() {
@@ -95,6 +98,7 @@ public class EVRA_GazeTracker : MonoBehaviour
         _angleDiff = Vector3.Angle(prevGazeLocal, curGazeLocal);
         _signedAngleDiff = Vector3.SignedAngle( prevGazeLocal, curGazeLocal, orientationUp );
         _angularVelocity = _angleDiff / deltaTime;
+        _saccade_status = (_angularVelocity > 180f) ? (_signedAngleDiff < 0f) ? "Left" : "Right" : "-";
 
         // Save the previous with the current
         SavePrev();
@@ -136,13 +140,13 @@ public class EVRA_GazeTracker : MonoBehaviour
                 if (rightTextbox != null) rightTextbox.text = eye.hzCounter.ToString();
             }
         }
+        if (angularVelocityTextbox != null) angularVelocityTextbox.text = _saccade_status;
+
         if (lr != null) {
             lr_positions.Add(gazePoint);
             lr.positionCount = lr_positions.Count;
             lr.SetPositions(lr_positions.ToArray());
         }
-
-        if (angularVelocityTextbox != null) angularVelocityTextbox.text = (_angularVelocity > 180f) ? (_signedAngleDiff < 0f) ? "Left" : "Right" : "-";
     }
 
     private void OnDestroy() {
