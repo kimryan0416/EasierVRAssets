@@ -142,11 +142,24 @@ public class EVRA_GazeTracker : MonoBehaviour
         }
         if (angularVelocityTextbox != null) angularVelocityTextbox.text = _saccade_status;
 
-        if (lr != null) {
+        if (lr != null && lr.enabled) {
             lr_positions.Add(gazePoint);
             lr.positionCount = lr_positions.Count;
             lr.SetPositions(lr_positions.ToArray());
         }
+    }
+
+    public void ToggleLineRenderer() {
+        if (lr == null) return;
+        lr_positions = new List<Vector3>();
+        lr.positionCount = 0;
+        lr.enabled = !lr.enabled;
+    }
+
+    public void ResetLineRenderer() {
+        if (lr == null) return;
+        lr_positions = new List<Vector3>();
+        lr.positionCount = 0;
     }
 
     private void OnDestroy() {
