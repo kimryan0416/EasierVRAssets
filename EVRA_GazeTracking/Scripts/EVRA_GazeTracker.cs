@@ -24,6 +24,7 @@ public class EVRA_GazeTracker : MonoBehaviour
     public float reticleSize = 0.25f;
 
     [Header("Recording References and Settings")]
+    public bool log_results = true;
     public TextMeshProUGUI leftTextbox, rightTextbox, angularVelocityTextbox;
     public LineRenderer lr;
     public List<Vector3> lr_positions = new List<Vector3>();
@@ -132,15 +133,17 @@ public class EVRA_GazeTracker : MonoBehaviour
     }
 
     private void UpdateReadout() {
-        foreach(OVREyeGaze eye in eyes) {
-            if (eye.Eye == OVREyeGaze.EyeId.Left) {
-                if (leftTextbox != null) leftTextbox.text = eye.hzCounter.ToString();
+        if (log_results) {
+            foreach(OVREyeGaze eye in eyes) {
+                if (eye.Eye == OVREyeGaze.EyeId.Left) {
+                    if (leftTextbox != null) leftTextbox.text = eye.hzCounter.ToString();
+                }
+                else {
+                    if (rightTextbox != null) rightTextbox.text = eye.hzCounter.ToString();
+                }
             }
-            else {
-                if (rightTextbox != null) rightTextbox.text = eye.hzCounter.ToString();
-            }
+            if (angularVelocityTextbox != null) angularVelocityTextbox.text = _saccade_status;
         }
-        if (angularVelocityTextbox != null) angularVelocityTextbox.text = _saccade_status;
 
         if (lr != null && lr.enabled) {
             lr_positions.Add(gazePoint);
