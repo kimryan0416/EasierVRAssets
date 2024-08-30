@@ -133,17 +133,7 @@ public class EVRA_GazeTracker : MonoBehaviour
     }
 
     private void UpdateReadout() {
-        if (log_results) {
-            foreach(OVREyeGaze eye in eyes) {
-                if (eye.Eye == OVREyeGaze.EyeId.Left) {
-                    if (leftTextbox != null) leftTextbox.text = eye.hzCounter.ToString();
-                }
-                else {
-                    if (rightTextbox != null) rightTextbox.text = eye.hzCounter.ToString();
-                }
-            }
-            if (angularVelocityTextbox != null) angularVelocityTextbox.text = _saccade_status;
-        }
+        if (log_results && angularVelocityTextbox != null) angularVelocityTextbox.text = _saccade_status;
 
         if (lr != null && lr.enabled) {
             lr_positions.Add(gazePoint);
