@@ -52,7 +52,7 @@ public class EVRA_SaccadeCalibrator : MonoBehaviour
     private List<float> angularVels = new List<float>();
     private List<float> angularAccels = new List<float>();
 
-    [SerializeField, ReadOnly] private bool _initialized = false;
+    [SerializeField, ReadOnlyInsp] private bool _initialized = false;
     public UnityEvent onEndCallback;
 
     // Start is called before the first frame update
