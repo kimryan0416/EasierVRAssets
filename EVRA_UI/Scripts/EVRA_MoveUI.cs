@@ -57,6 +57,11 @@ public class EVRA_MoveUI : MonoBehaviour
             transform.position = positionTargetRef.position;
             return;
         }
+        // If movement speed is 0, then auto-set to the position without any movement.
+        if (movementSpeed <= 0f) {
+            transform.position = positionTargetRef.position;
+            return;
+        }
         // Calculate the step needed to be taken for translatio0n
         float step = movementSpeed * Time.deltaTime * movementMultiplier.Evaluate(gradientValue);
         // Move towards the target position
